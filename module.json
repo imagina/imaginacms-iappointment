@@ -1,0 +1,16 @@
+{
+    "name": "Iappointment",
+    "alias": "iappointment",
+    "version": "1.0.0",
+	"description": "",
+    "keywords": [],
+    "priority": 1,
+    "providers": [
+        "Modules\\Iappointment\\Providers\\IappointmentServiceProvider",
+        "Modules\\Iappointment\\Providers\\EventServiceProvider",
+        "Modules\\Iappointment\\Providers\\RouteServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}

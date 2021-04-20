@@ -1,0 +1,129 @@
+<?php
+
+namespace Modules\Iappointment\Providers;
+
+use Illuminate\Database\Eloquent\Factory as EloquentFactory;
+use Illuminate\Support\ServiceProvider;
+use Modules\Core\Traits\CanPublishConfiguration;
+use Modules\Core\Events\BuildingSidebar;
+use Modules\Core\Events\LoadingBackendTranslations;
+use Modules\Iappointment\Listeners\RegisterIappointmentSidebar;
+
+class IappointmentServiceProvider extends ServiceProvider
+{
+    use CanPublishConfiguration;
+    /**
+     * Indicates if loading of the provider is deferred.
+     *
+     * @var bool
+     */
+    protected $defer = false;
+
+    /**
+     * Register the service provider.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        $this->registerBindings();
+        $this->app['events']->listen(BuildingSidebar::class, RegisterIappointmentSidebar::class);
+
+        $this->app['events']->listen(LoadingBackendTranslations::class, function (LoadingBackendTranslations $event) {
+            $event->load('appointments', Arr::dot(trans('iappointment::appointments')));
+            $event->load('categories', Arr::dot(trans('iappointment::categories')));
+            $event->load('appointmentfields', Arr::dot(trans('iappointment::appointmentfields')));
+            $event->load('appointmentstatuses', Arr::dot(trans('iappointment::appointmentstatuses')));
+            $event->load('categoryforms', Arr::dot(trans('iappointment::categoryforms')));
+            // append translations
+
+
+
+
+
+        });
+
+
+    }
+
+    public function boot()
+    {
+        $this->publishConfig('iappointment', 'config');
+        $this->publishConfig('iappointment', 'permissions');
+        $this->publishConfig('iappointment', 'settings');
+        $this->publishConfig('iappointment', 'settings-fields');
+
+        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
+    }
+
+    /**
+     * Get the services provided by the provider.
+     *
+     * @return array
+     */
+    public function provides()
+    {
+        return array();
+    }
+
+    private function registerBindings()
+    {
+        $this->app->bind(
+            'Modules\Iappointment\Repositories\AppointmentRepository',
+            function () {
+                $repository = new \Modules\Iappointment\Repositories\Eloquent\EloquentAppointmentRepository(new \Modules\Iappointment\Entities\Appointment());
+
+                if (! config('app.cache')) {
+                    return $repository;
+                }
+
+                return new \Modules\Iappointment\Repositories\Cache\CacheAppointmentDecorator($repository);
+            }
+        );
+        $this->app->bind(
+            'Modules\Iappointment\Repositories\CategoryRepository',
+            function () {
+                $repository = new \Modules\Iappointment\Repositories\Eloquent\EloquentCategoryRepository(new \Modules\Iappointment\Entities\Category());
+
+                if (! config('app.cache')) {
+                    return $repository;
+                }
+
+                return new \Modules\Iappointment\Repositories\Cache\CacheCategoryDecorator($repository);
+            }
+        );
+        $this->app->bind(
+            'Modules\Iappointment\Repositories\AppointmentStatusRepository',
+            function () {
+                $repository = new \Modules\Iappointment\Repositories\Eloquent\EloquentAppointmentStatusRepository(new \Modules\Iappointment\Entities\AppointmentStatus());
+
+                if (! config('app.cache')) {
+                    return $repository;
+                }
+
+                return new \Modules\Iappointment\Repositories\Cache\CacheAppointmentStatusDecorator($repository);
+            }
+        );
+// add bindings
+
+        $this->app->bind(
+            'Modules\Iappointment\Repositories\AppointmentStatusHistoryRepository',
+            function () {
+                $repository = new \Modules\Iappointment\Repositories\Eloquent\EloquentAppointmentStatusHistoryRepository(new \Modules\Iappointment\Entities\AppointmentStatus());
+
+                if (! config('app.cache')) {
+                    return $repository;
+                }
+
+                return new \Modules\Iappointment\Repositories\Cache\CacheAppointmentStatusHistoryDecorator($repository);
+            }
+        );
+
+
+
+
+
+    }
+
+
+}
