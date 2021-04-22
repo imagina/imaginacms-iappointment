@@ -3,6 +3,7 @@
 namespace Modules\Iappointment\Transformers;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Modules\Iforms\Transformers\FormTransformer;
 
 class CategoryTransformer extends JsonResource
 {
@@ -17,7 +18,8 @@ class CategoryTransformer extends JsonResource
             'options' =>  $this->options,
             'createdAt' => $this->when($this->created_at, $this->created_at),
             'updatedAt' => $this->when($this->updated_at, $this->updated_at),
-            'parent' => new CategoryTransformer ($this->whenLoaded('parent')),
+            'forms' => FormTransformer::collection($this->whenLoaded('forms')),
+            'parent' => new CategoryTransformer($this->whenLoaded('parent')),
             'children' => CategoryTransformer::collection($this->whenLoaded('children')),
             'appointments' => AppointmentTransformer::collection($this->whenLoaded('appointments')),
         ];

@@ -4,10 +4,11 @@ namespace Modules\Iappointment\Entities;
 
 use Astrotomic\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Model;
+use Modules\Iforms\Support\Traits\Formeable;
 
 class Category extends Model
 {
-    use Translatable;
+    use Translatable, Formeable;
 
     protected $table = 'iappointment__categories';
     public $translatedAttributes = [

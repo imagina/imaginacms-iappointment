@@ -3,6 +3,9 @@
 namespace Modules\Iappointment\Repositories\Eloquent;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
+use Modules\Iappointment\Events\CategoryWasCreated;
+use Modules\Iappointment\Events\CategoryWasDeleted;
 use Modules\Iappointment\Repositories\CategoryRepository;
 use Modules\Core\Repositories\Eloquent\EloquentBaseRepository;
 use Modules\Ihelpers\Events\CreateMedia;
@@ -145,6 +148,12 @@ class EloquentCategoryRepository extends EloquentBaseRepository implements Categ
 
         $model = $this->model->create($data);
 
+        $forms = Arr::get($data, 'forms', []);
+
+        $model->forms()->sync($forms);
+
+        event(new CategoryWasCreated($model, $data));
+
         event(new CreateMedia($model, $data));
 
         return $this->find($model->id);
@@ -175,6 +184,11 @@ class EloquentCategoryRepository extends EloquentBaseRepository implements Categ
         /*== REQUEST ==*/
         $model = $query->where($field ?? 'id', $criteria)->first();
         $model ? $model->update((array)$data) : false;
+
+        $forms = Arr::get($data, 'forms', []);
+
+        $model->forms()->sync($forms);
+
         event(new UpdateMedia($model, $data));
     }
 
@@ -199,6 +213,7 @@ class EloquentCategoryRepository extends EloquentBaseRepository implements Categ
         /*== REQUEST ==*/
         $model = $query->where($field ?? 'id', $criteria)->first();
         $model ? $model->delete() : false;
+        event(new CategoryWasDeleted($model));
         event(new DeleteMedia($model->id, get_class($model)));
 
     }
