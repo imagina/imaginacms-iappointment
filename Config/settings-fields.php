@@ -27,4 +27,14 @@ return [
             'select' => ['label' => 'name', 'id' => 'id']
         ]
     ],
+    'enableChat' => [
+        'name' => 'iappointment::enableChat',
+        'value' => '0',
+        'type' => 'checkbox',
+        'props' => [
+            'label' => 'iappointment::settings.enableChat',
+            'trueValue' => '1',
+            'falseValue' => '0'
+        ],
+    ],
 ];

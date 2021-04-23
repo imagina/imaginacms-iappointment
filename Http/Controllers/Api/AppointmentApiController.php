@@ -23,10 +23,12 @@ use Modules\Iappointment\Repositories\AppointmentRepository;
 class AppointmentApiController extends BaseApiController
 {
     private $appointment;
+    private $conversation;
 
     public function __construct(AppointmentRepository $appointment)
     {
         $this->appointment = $appointment;
+        $this->conversation = app('Modules\Ichat\Services\ConversationService');
     }
 
     /**
@@ -41,13 +43,13 @@ class AppointmentApiController extends BaseApiController
             $params = $this->getParamsRequest($request);
 
             //Request to Repository
-            $categories = $this->appointment->getItemsBy($params);
+            $appointments = $this->appointment->getItemsBy($params);
 
             //Response
-            $response = ["data" => AppointmentTransformer::collection($categories)];
+            $response = ["data" => AppointmentTransformer::collection($appointments)];
 
             //If request pagination add meta-page
-            $params->page ? $response["meta"] = ["page" => $this->pageTransformer($categories)] : false;
+            $params->page ? $response["meta"] = ["page" => $this->pageTransformer($appointments)] : false;
         } catch (\Exception $e) {
             $status = $this->getStatusError($e->getCode());
             $response = ["errors" => $e->getMessage()];
@@ -106,6 +108,20 @@ class AppointmentApiController extends BaseApiController
 
             //Create item
             $appointment = $this->appointment->create($data);
+
+            //build data for conversation
+            $conversationData = [
+                'users' => [
+                    $data['customer_id'],
+                    $data['assigned_to']
+                ],
+                'private' => 1,
+                'entity_id' => $appointment->id,
+                'entity_type' => get_class($appointment),
+            ];
+
+            if(setting('iappointment::enableChat')==='1')
+                $this->conversation->create($conversationData);
 
             //Response
             $response = ["data" => new AppointmentTransformer($appointment)];
