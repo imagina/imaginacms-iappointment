@@ -84,6 +84,8 @@ class EloquentAppointmentRepository extends EloquentBaseRepository implements Ap
             }
         }
 
+        $this->validateIndexAllPermission($query, $params);
+
         /*== FIELDS ==*/
         if (isset($params->fields) && count($params->fields))
             $query->select($params->fields);
@@ -137,6 +139,8 @@ class EloquentAppointmentRepository extends EloquentBaseRepository implements Ap
                 // find by specific attribute or by id
                 $query->where($field ?? 'id', $criteria);
         }
+
+        $this->validateIndexAllPermission($query, $params);
 
         /*== FIELDS ==*/
         if (isset($params->fields) && count($params->fields))
@@ -212,5 +216,26 @@ class EloquentAppointmentRepository extends EloquentBaseRepository implements Ap
         $model ? $model->delete() : false;
         event(new DeleteMedia($model->id, get_class($model)));
 
+    }
+
+    function validateIndexAllPermission(&$query, $params)
+    {
+        // filter by permission: index all appointments
+        if (!isset($params->permissions['iappointment.appointments.index-all']) ||
+            (isset($params->permissions['iappointment.appointments.index-all']) &&
+                !$params->permissions['iappointment.appointments.index-all'])) {
+            $user = $params->user ?? null;
+
+            if(isset($user->id)){
+                // if is salesman or salesman manager or salesman sub manager
+                $query->where(function($q) use($user){
+                    $q->where('customer_id', $user->id)
+                        ->orWhere('assigned_to', $user->id);
+
+                });
+            }
+
+
+        }
     }
 }

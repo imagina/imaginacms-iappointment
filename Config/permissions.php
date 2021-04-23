@@ -4,6 +4,7 @@ return [
     'iappointment.appointments' => [
         'manage' => 'iappointment::appointments.manage resource',
         'index' => 'iappointment::appointments.list resource',
+        'index-all' => 'iappointment::appointments.list resource',
         'create' => 'iappointment::appointments.create resource',
         'edit' => 'iappointment::appointments.edit resource',
         'destroy' => 'iappointment::appointments.destroy resource',

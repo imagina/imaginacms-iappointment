@@ -12,10 +12,12 @@ $router->group(['prefix' => '/appointments'], function (Router $router) {
     $router->get('/', [
         'as' => 'api.iappointment.appointments.index',
         'uses' => 'AppointmentApiController@index',
+        'middleware' => ['auth:api']
     ]);
     $router->get('/{criteria}', [
         'as' => 'api.iappointment.appointments.show',
         'uses' => 'AppointmentApiController@show',
+        'middleware' => ['auth:api']
     ]);
     $router->put('/{criteria}', [
         'as' => 'api.iappointment.appointments.update',

@@ -21,7 +21,7 @@ class CreateIappointmentAppointmentTranslationsTable extends Migration
             $table->integer('appointment_id')->unsigned();
             $table->string('locale')->index();
             $table->unique(['appointment_id', 'locale'],'appointment_id_locale');
-            $table->foreign('appointment_id')->references('id')->on('iappointment__categories')->onDelete('cascade');
+            $table->foreign('appointment_id')->references('id')->on('iappointment__appointments')->onDelete('cascade');
         });
     }
 

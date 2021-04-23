@@ -23,12 +23,10 @@ use Modules\Iappointment\Repositories\AppointmentRepository;
 class AppointmentApiController extends BaseApiController
 {
     private $appointment;
-    private $conversation;
 
     public function __construct(AppointmentRepository $appointment)
     {
         $this->appointment = $appointment;
-        $this->conversation = app('Modules\Ichat\Services\ConversationService');
     }
 
     /**
@@ -121,7 +119,8 @@ class AppointmentApiController extends BaseApiController
             ];
 
             if(setting('iappointment::enableChat')==='1')
-                $this->conversation->create($conversationData);
+                if(is_module_enabled('Ichat'))
+                    app('Modules\Ichat\Services\ConversationService')->create($conversationData);
 
             //Response
             $response = ["data" => new AppointmentTransformer($appointment)];
