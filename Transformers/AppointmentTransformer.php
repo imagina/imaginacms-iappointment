@@ -31,12 +31,8 @@ class AppointmentTransformer extends JsonResource
             $languages = \LaravelLocalization::getSupportedLocales();
 
             foreach ($languages as $lang => $value) {
-                $data[$lang]['title'] = $this->hasTranslation($lang) ?
-                    $this->translate("$lang")['title'] : '';
                 $data[$lang]['description'] = $this->hasTranslation($lang) ?
                     $this->translate("$lang")['description'] ?? '' : '';
-                $data[$lang]['slug'] = $this->hasTranslation($lang) ?
-                    $this->translate("$lang")['slug'] : '';
             }
         }
         return $data;
