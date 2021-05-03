@@ -17,4 +17,14 @@ class AppointmentStatus extends Model
         'parent_id',
         'status'
     ];
+
+    public function parent()
+    {
+        return $this->belongsTo(AppointmentStatus::class, 'parent_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(AppointmentStatus::class, 'parent_id');
+    }
 }

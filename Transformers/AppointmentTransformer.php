@@ -12,13 +12,15 @@ class AppointmentTransformer extends JsonResource
         $data = [
             'id' => $this->id,
             'description' => $this->description ?? '',
+            'statusId' => (int)$this->status_id,
             'categoryId' => (int)$this->category_id,
             'customerId' => (int)$this->customer_id,
             'assignedTo' => (int)$this->assigned_to,
             'options' =>  $this->options,
             'createdAt' => $this->when($this->created_at, $this->created_at),
             'updatedAt' => $this->when($this->updated_at, $this->updated_at),
-            'category' => new CategoryTransformer ($this->whenLoaded('category')),
+            'category' => new CategoryTransformer($this->whenLoaded('category')),
+            'status' => new AppointmentStatusTransformer($this->whenLoaded('status')),
             'customer' => new UserTransformer($this->whenLoaded('customer')),
             'assigned' => new UserTransformer($this->whenLoaded('assigned')),
         ];
