@@ -25,7 +25,7 @@ class AppointmentStatusHistory extends Model
         return $this->belongsTo(AppointmentStatus::class, 'status_id');
     }
 
-    public function assignedTo()
+    public function assigned()
     {
         $driver = config('asgard.user.config.driver');
         return $this->belongsTo("Modules\\User\\Entities\\{$driver}\\User", 'assigned_to');

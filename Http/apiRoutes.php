@@ -6,4 +6,6 @@ $router->group(['prefix' => '/iappointment/v1'/*,'middleware' => ['auth:api']*/]
     require('ApiRoutes/categoryRoutes.php');
 
     require('ApiRoutes/appointmentRoutes.php');
+
+    require('ApiRoutes/appointmentStatusRoutes.php');
 });

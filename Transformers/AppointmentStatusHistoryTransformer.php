@@ -3,19 +3,21 @@
 namespace Modules\Iappointment\Transformers;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Modules\Iprofile\Transformers\UserTransformer;
 
-class AppointmentStatusTransformer extends JsonResource
+class AppointmentStatusHistoryTransformer extends JsonResource
 {
     public function toArray($request)
     {
         $data = [
             'id' => $this->id,
-            'title' => $this->title ?? '',
-            'parentId' => (int)$this->parent_id,
+            'comment' => $this->comment ?? '',
+            'assignedTo' => (int)$this->assigned_to,
+            'appointmentId' => (int)$this->appointment_id,
+            'assigned' => new UserTransformer($this->whenLoaded('assigned')),
+            'appointment' => new AppointmentTransformer($this->whenLoaded('appointment')),
             'createdAt' => $this->when($this->created_at, $this->created_at),
             'updatedAt' => $this->when($this->updated_at, $this->updated_at),
-            'parent' => new AppointmentStatusTransformer($this->whenLoaded('parent')),
-            'children' => AppointmentStatusTransformer::collection($this->whenLoaded('children')),
         ];
 
         $filter = json_decode($request->filter);
@@ -26,8 +28,8 @@ class AppointmentStatusTransformer extends JsonResource
             $languages = \LaravelLocalization::getSupportedLocales();
 
             foreach ($languages as $lang => $value) {
-                $data[$lang]['title'] = $this->hasTranslation($lang) ?
-                    $this->translate("$lang")['title'] : '';
+                $data[$lang]['comment'] = $this->hasTranslation($lang) ?
+                    $this->translate("$lang")['comment'] : '';
             }
         }
         return $data;

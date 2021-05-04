@@ -39,6 +39,10 @@ class Appointment extends Model
         return $this->belongsTo(Category::class);
     }
 
+    public function status(){
+        return $this->belongsTo(AppointmentStatus::class,'status_id');
+    }
+
     public function customer()
     {
         $driver = config('asgard.user.config.driver');
