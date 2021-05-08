@@ -49,5 +49,4 @@ class Category extends Model
         return $this->hasMany(Appointment::class, 'category_id');
     }
 
-
 }

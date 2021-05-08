@@ -148,9 +148,10 @@ class EloquentCategoryRepository extends EloquentBaseRepository implements Categ
 
         $model = $this->model->create($data);
 
-        $forms = Arr::get($data, 'forms', []);
-
-        $model->forms()->sync($forms);
+        if($data['form_id'])
+            $model->forms()->sync([$data['form_id']]);
+        else
+            $model->forms()->sync([]);
 
         event(new CategoryWasCreated($model, $data));
 
@@ -185,9 +186,10 @@ class EloquentCategoryRepository extends EloquentBaseRepository implements Categ
         $model = $query->where($field ?? 'id', $criteria)->first();
         $model ? $model->update((array)$data) : false;
 
-        $forms = Arr::get($data, 'forms', []);
-
-        $model->forms()->sync($forms);
+        if($data['form_id'])
+            $model->forms()->sync([$data['form_id']]);
+        else
+            $model->forms()->sync([]);
 
         event(new UpdateMedia($model, $data));
     }
