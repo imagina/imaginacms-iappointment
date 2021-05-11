@@ -3,6 +3,7 @@
 namespace Modules\Iappointment\Providers;
 
 use Illuminate\Database\Eloquent\Factory as EloquentFactory;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Modules\Core\Traits\CanPublishConfiguration;
 use Modules\Core\Events\BuildingSidebar;
@@ -54,6 +55,8 @@ class IappointmentServiceProvider extends ServiceProvider
         $this->publishConfig('iappointment', 'settings-fields');
 
         $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
+
+        $this->registerComponents();
     }
 
     /**
@@ -123,6 +126,14 @@ class IappointmentServiceProvider extends ServiceProvider
 
 
 
+    }
+
+    /**
+     * Register Blade components
+     */
+
+    private function registerComponents(){
+        Blade::componentNamespace("Modules\Iappointment\View\Components", 'iappointment');
     }
 
 
