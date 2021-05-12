@@ -7,7 +7,7 @@ $locale = LaravelLocalization::setLocale() ?: App::getLocale();
 Route::group(['prefix' => LaravelLocalization::setLocale(),
     'middleware' => ['localize']], function (Router $router) use ($locale) {
     $router->get(trans('iappointment::routes.appointmentCategory.index') . '/{criteria}', [
-        'as' => 'appointment.category.show',
+        'as' => $locale . '.appointment.category.show',
         'uses' => 'PublicController@showCategory',
     ]);
 });

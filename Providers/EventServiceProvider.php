@@ -7,6 +7,7 @@ use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvi
 use Modules\Iappointment\Events\CategoryWasCreated;
 use Modules\Iappointment\Events\CategoryWasDeleted;
 use Modules\Iappointment\Events\CategoryWasUpdated;
+use Modules\Iappointment\Events\Handlers\NewAppointmentFromNewSubscription;
 use Modules\Iforms\Events\Handlers\HandleFormeable;
 
 use Illuminate\Support\Facades\Event;
@@ -34,5 +35,13 @@ class EventServiceProvider extends ServiceProvider
             CategoryWasDeleted::class,
             [HandleFormeable::class, 'handle']
         );
+
+        if(is_module_enabled('Iplan')){
+            Event::listen(
+                "Modules\\Iplan\\Events\\SubscriptionHasStarted",
+                [NewAppointmentFromNewSubscription::class, 'handle']
+            );
+        }
+
     }
 }

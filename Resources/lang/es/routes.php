@@ -4,6 +4,7 @@ return [
         'index' => 'cita/categorias',
     ],
     'appointment' => [
-        'index' => 'cita'
+        'index' => 'cita',
+        'purchase' => 'cita/adquirir',
     ]
 ];

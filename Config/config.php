@@ -24,5 +24,15 @@ return [
             'id' => 5,
             'title' => 'iappointment::appointmentstatuses.statuses.completed',
         ],
-    ]
+    ],
+    //DEfine entities allowed to limit with Iplan Module
+    'limitableEntities' => [
+        [
+            'entity' => 'Modules\Iappointment\Entities\Appointment',
+            'name' => 'Cita',
+            'status' => true,
+            'attributes' => [
+            ]
+        ]
+    ],
 ];

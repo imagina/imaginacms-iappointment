@@ -49,4 +49,9 @@ class Category extends Model
         return $this->hasMany(Appointment::class, 'category_id');
     }
 
+    public function getUrlAttribute(){
+        $locale = \LaravelLocalization::setLocale() ?: \App::getLocale();
+        return route($locale.'.appointment.category.show', [$this->id]);
+    }
+
 }

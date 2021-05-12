@@ -37,4 +37,14 @@ return [
             'falseValue' => '0'
         ],
     ],
+    'maxAppointments' => [
+        'name' => 'iappointment::maxAppointments',
+        'value' => '1',
+        'type' => 'input',
+        'props' => [
+            'label' => 'iappointment::settings.maxAppointments',
+            'type' => 'number',
+            'min' => '1',
+        ],
+    ],
 ];

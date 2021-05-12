@@ -2,6 +2,7 @@
 
 namespace Modules\Iappointment\Repositories\Eloquent;
 
+use Modules\Iappointment\Events\AppointmentWasCreated;
 use Modules\Iappointment\Repositories\AppointmentRepository;
 use Modules\Core\Repositories\Eloquent\EloquentBaseRepository;
 use Modules\Ihelpers\Events\CreateMedia;
@@ -159,6 +160,8 @@ class EloquentAppointmentRepository extends EloquentBaseRepository implements Ap
     {
 
         $model = $this->model->create($data);
+
+        event(new AppointmentWasCreated($model, $data));
 
         event(new CreateMedia($model, $data));
 

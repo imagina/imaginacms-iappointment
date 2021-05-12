@@ -10,10 +10,12 @@ use Illuminate\Http\Response;
 class PublicController extends BaseApiController
 {
     private $category;
+    private $plan;
 
     public function __construct(CategoryRepository $category)
     {
         $this->category = $category;
+        $this->plan = app('Modules\Iplan\Repositories\PlanRepository');
     }
 
     public function showCategory($criteria, Request $request){
