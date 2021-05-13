@@ -3,11 +3,11 @@ namespace Modules\Iappointment\Events\Handlers;
 
 class NewAppointmentFromNewSubscription
 {
-    private $appointment;
+    private $appointmentService;
 
     public function __construct()
     {
-        $this->appointment = app('Modules\Iappointment\Repositories\AppointmentRepository');
+        $this->appointmentService = app('Modules\Iappointment\Services\AppointmentService');
     }
 
     public function handle($event)
@@ -20,13 +20,7 @@ class NewAppointmentFromNewSubscription
             \Log::info('Appointment category: ' . $model->options->appointmentCategoryId);
 
             if ($model->entity === "Modules\\User\\Entities\\{$userDriver}\\User") {
-                $appointmentData = [
-                    'description' => '--',
-                    'customer_id' => $model->entity_id,
-                    'status_id' => 1,
-                    'category_id' => $model->options->appointmentCategoryId
-                ];
-                $appointment = $this->appointment->create($appointmentData);
+                $appointment = $this->appointmentService->create($model->options->appointmentCategoryId, $model);
                 \Log::info('New Appointment was created to customer: '.$appointment->customer->email.' - Category: '.$appointment->category->title);
             }
         }catch(\Exception $e){

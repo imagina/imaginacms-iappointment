@@ -3,6 +3,8 @@
 namespace Modules\Iappointment\Events;
 
 
+use Modules\Iappointment\Entities\Appointment;
+
 class AppointmentIsCreating
 {
     public $model;
@@ -10,12 +12,11 @@ class AppointmentIsCreating
     /**
      * Create a new event instance.
      *
-     * @param $entity
-     * @param array $data
+     * @param $model
      */
     public function __construct($model)
     {
-        $this->model = $model;
+        $this->model = new Appointment($model);
     }
 
 }
