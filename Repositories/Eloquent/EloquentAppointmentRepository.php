@@ -3,7 +3,9 @@
 namespace Modules\Iappointment\Repositories\Eloquent;
 
 use Modules\Iappointment\Events\AppointmentIsCreating;
+use Modules\Iappointment\Events\AppointmentIsUpdating;
 use Modules\Iappointment\Events\AppointmentWasCreated;
+use Modules\Iappointment\Events\AppointmentWasUpdated;
 use Modules\Iappointment\Repositories\AppointmentRepository;
 use Modules\Core\Repositories\Eloquent\EloquentBaseRepository;
 use Modules\Ihelpers\Events\CreateMedia;
@@ -164,7 +166,7 @@ class EloquentAppointmentRepository extends EloquentBaseRepository implements Ap
 
         $model = $this->model->create($data);
 
-        event(new AppointmentWasCreated($model, $data));
+        event(new AppointmentWasCreated($model));
 
         event(new CreateMedia($model, $data));
 
@@ -195,7 +197,13 @@ class EloquentAppointmentRepository extends EloquentBaseRepository implements Ap
 
         /*== REQUEST ==*/
         $model = $query->where($field ?? 'id', $criteria)->first();
+
+        event(new AppointmentIsUpdating($data, $model));
+
         $model ? $model->update((array)$data) : false;
+
+        event(new AppointmentWasUpdated($model));
+
         event(new UpdateMedia($model, $data));
     }
 

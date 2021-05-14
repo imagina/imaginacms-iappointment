@@ -4,10 +4,12 @@ namespace Modules\Iappointment\Providers;
 
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
+use Modules\Iappointment\Events\AppointmentWasCreated;
 use Modules\Iappointment\Events\CategoryWasCreated;
 use Modules\Iappointment\Events\CategoryWasDeleted;
 use Modules\Iappointment\Events\CategoryWasUpdated;
 use Modules\Iappointment\Events\Handlers\NewAppointmentFromNewSubscription;
+use Modules\Iappointment\Events\Handlers\ValidateAppointment;
 use Modules\Iforms\Events\Handlers\HandleFormeable;
 
 use Illuminate\Support\Facades\Event;

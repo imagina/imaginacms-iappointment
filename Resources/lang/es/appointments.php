@@ -18,6 +18,8 @@ return [
     'form' => [
     ],
     'messages' => [
+        'newAppointment' => 'Nueva consulta asignada para ti',
+        'newAppointmentContent' => 'Hola, <b>:name</b>. Una nueva consulta ha sido asignada para ti.'
     ],
     'validation' => [
     ],
