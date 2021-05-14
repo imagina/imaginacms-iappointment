@@ -8,7 +8,8 @@
     "providers": [
         "Modules\\Iappointment\\Providers\\IappointmentServiceProvider",
         "Modules\\Iappointment\\Providers\\EventServiceProvider",
-        "Modules\\Iappointment\\Providers\\RouteServiceProvider"
+        "Modules\\Iappointment\\Providers\\RouteServiceProvider",
+        "Modules\\Iappointment\\Providers\\ScheduleServiceProvider"
     ],
     "aliases": {},
     "files": [],

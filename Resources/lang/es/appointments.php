@@ -12,6 +12,7 @@ return [
     ],
     'button' => [
         'create appointment' => 'Create a appointment',
+        'take' => 'Tomar consulta',
     ],
     'table' => [
     ],

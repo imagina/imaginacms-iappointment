@@ -4,10 +4,11 @@ namespace Modules\Iappointment\Entities;
 
 use Astrotomic\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Model;
+use Modules\Media\Support\Traits\MediaRelation;
 
 class Appointment extends Model
 {
-    use Translatable;
+    use Translatable, MediaRelation;
 
     protected $table = 'iappointment__appointments';
     public $translatedAttributes = [

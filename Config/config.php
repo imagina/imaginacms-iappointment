@@ -35,4 +35,17 @@ return [
             ]
         ]
     ],
+
+    //Media Fillables
+    'mediaFillable' => [
+        'appointment' => [
+            'mainimage' => 'single',
+            'gallery' => 'multiple'
+        ],
+        'category' => [
+            'mainimage' => 'single',
+            'gallery' => 'multiple',
+        ]
+    ],
+
 ];
