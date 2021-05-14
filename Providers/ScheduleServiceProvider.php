@@ -16,8 +16,9 @@ class ScheduleServiceProvider extends ServiceProvider
             $schedule->call(function () {
                 \Modules\Iappointment\Jobs\AssignAppointment::dispatch();
             })
-                ->dailyAt('20:00');
-                //->everyMinute();
+                ->everyMinute();
+                //->dailyAt('20:00');
+
         });
 
     }

@@ -20,7 +20,7 @@ return [
     ],
     'messages' => [
         'newAppointment' => 'New Appointment Assigned to you',
-        'newAppointmentContent' => 'Hi, <b>:name</b>. A new appointment has been assigned to you.'
+        'newAppointmentContent' => 'Hi, <b>:name</b>. An appointment about <b>:detail</b> has been assigned to you.'
     ],
     'validation' => [
     ],

@@ -20,7 +20,7 @@ return [
     ],
     'messages' => [
         'newAppointment' => 'Nueva consulta asignada para ti',
-        'newAppointmentContent' => 'Hola, <b>:name</b>. Una nueva consulta ha sido asignada para ti.'
+        'newAppointmentContent' => 'Hola <b>:name</b>, te ha sido asignada una consulta de <b>:detail</b>.'
     ],
     'validation' => [
     ],

@@ -13,10 +13,13 @@ class AssignAppointment implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, SerializesModels;
 
+    public $notificationService;
+    public $userRepository;
+
     public function __construct()
     {
-        $this->notification = app("Modules\Notification\Services\Inotification");
-        $this->user = app("Modules\Iprofile\Repositories\UserApiRepository");
+        $this->notificationService = app("Modules\Notification\Services\Inotification");
+        $this->userRepository = app("Modules\Iprofile\Repositories\UserApiRepository");
     }
 
 
@@ -40,6 +43,23 @@ class AssignAppointment implements ShouldQueue
                     $appointmentCount = Appointment::where('assigned_to',$user->id)->where('status_id',2)->count();
                     if($appointmentCount < $maxAppointments){
                         $item->update(['assigned_to' => $user->id]);
+                        $this->notificationService->to([
+                            "email" => $user->email,
+                            "broadcast" => [$user->id],
+                            "push" => [$user->id],
+                        ])->push(
+                            [
+                                "title" => trans("iappointment::appointments.messages.newAppointment"),
+                                "message" => trans("iappointment::appointments.messages.newAppointmentContent",['name' => $user->present()->fullName, 'detail' => $item->category->title]),
+                                "icon_class" => "fas fa-list-alt",
+                                "buttonText" => trans("iappointment::appointments.button.take"),
+                                "withButton" => true,
+                                "link" => url('/ipanel/#/appoimtment/' . $item->id),
+                                "setting" => [
+                                    "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
+                                ],
+                            ]
+                        );
                         \Log::info("Appointment #{$item->id} assigned to user {$user->present()->fullName}");
                         break;
                     }

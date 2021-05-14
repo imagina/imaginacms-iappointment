@@ -71,7 +71,7 @@ class AppointmentService
             ])->push(
                 [
                     "title" => trans("iappointment::appointments.messages.newAppointment"),
-                    "message" => trans("iappointment::appointments.messages.newAppointmentContent",['name' => $userAssignedTo->present()->fullName]),
+                    "message" => trans("iappointment::appointments.messages.newAppointmentContent",['name' => $userAssignedTo->present()->fullName, 'detail' => $category->title]),
                     "icon_class" => "fas fa-list-alt",
                     "buttonText" => trans("iappointment::appointments.button.take"),
                     "withButton" => true,
@@ -92,7 +92,7 @@ class AppointmentService
             ])->push(
                 [
                     "title" => trans("iappointment::appointments.messages.newAppointment"),
-                    "message" => trans("iappointment::appointments.messages.newAppointmentContent",['name' => $customerUser->present()->fullName]),
+                    "message" => trans("iappointment::appointments.messages.newAppointmentContent",['name' => $customerUser->present()->fullName, 'detail' => $category->title]),
                     "icon_class" => "fas fa-list-alt",
                     "buttonText" => trans("iappointment::appointments.button.take"),
                     "withButton" => true,
