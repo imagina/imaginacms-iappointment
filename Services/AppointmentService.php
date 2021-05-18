@@ -10,6 +10,7 @@ class AppointmentService
     public $category;
     public $userRepository;
     public $notificationService;
+    public $checkinShiftRepository;
 
     public function __construct()
     {
@@ -17,6 +18,7 @@ class AppointmentService
         $this->category = app('Modules\Iappointment\Repositories\CategoryRepository');
         $this->userRepository = app('Modules\Iprofile\Repositories\UserApiRepository');
         $this->notificationService = app("Modules\Notification\Services\Inotification");
+        $this->checkinShiftRepository = app("Modules\Icheckin\Repositories\ShiftRepository");
     }
 
     /**
@@ -48,9 +50,34 @@ class AppointmentService
         foreach($users as $user){
             $appointmentCount = Appointment::where('assigned_to',$user->id)->where('status_id',2)->count();
             if($appointmentCount < $maxAppointments){
+                $shiftParams = [
+                    'include' => [],
+                    'user' => $user,
+                    'take' => false,
+                    'filter' => [
+                        'repId' => $user->id,
+                        'date' => [
+                            'field' => 'checkout_at',
+                            'to' => now()->toDateTimeString(),
+                            'range' => "1"
+                        ]
+                    ]
+                ];
                 $userAssignedTo = $user;
-                //send notification by email, broadcast and push -- by default only send by email
+                if(setting('iappointment::enableShifts') === '1') {
+                    if (is_module_enabled('Icheckin')) {
+                        $shifts = $this->checkinShiftRepository->getItemsBy(json_decode(json_encode($shiftParams)));
+                        if (count($shifts) > 0) {
+                            $userAssignedTo = $user;
+                        } else {
+                            $userAssignedTo = null;
+                            \Log::info("User {$user->present()->fullName} does not have active shifts");
+                        }
+                    }
+                }
                 break;
+            }else{
+                \Log::info("User {$user->present()->fullName} is out of appointments");
             }
         }
 

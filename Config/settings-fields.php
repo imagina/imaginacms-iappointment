@@ -37,6 +37,16 @@ return [
             'falseValue' => '0'
         ],
     ],
+    'enableShifts' => [
+        'name' => 'iappointment::enableShifts',
+        'value' => '0',
+        'type' => 'checkbox',
+        'props' => [
+            'label' => 'iappointment::settings.enableShifts',
+            'trueValue' => '1',
+            'falseValue' => '0'
+        ],
+    ],
     'maxAppointments' => [
         'name' => 'iappointment::maxAppointments',
         'value' => '1',
