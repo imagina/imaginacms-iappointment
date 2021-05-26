@@ -20,7 +20,11 @@ return [
     ],
     'messages' => [
         'newAppointment' => 'New Appointment Assigned to you',
-        'newAppointmentContent' => 'Hi, <b>:name</b>. An appointment about <b>:detail</b> has been assigned to you.'
+        'appointmentNotAssigned' => 'Appointment couldn\'t be assigned yet',
+        'appointmentNotAssignedContent' => 'An appointment about <b>:detail</b>, requested by <b>:name</b>, couldn\'t be assigned yet.',
+        'newAppointmentContent' => 'Hi, <b>:name</b>. An appointment about <b>:detail</b> has been assigned to you.',
+        'newAppointmentWithAssignedContent' => 'Hi, <b>:name</b>. An appointment about <b>:detail</b> has been assigned to you with the doctor <b>:assignedName</b>',
+        'newAppointmentWithoutAssignedContent' => 'Hi, <b>:name</b>. An appointment about <b>:detail</b> has been assigned to you, but a doctor has not been assigned yet.',
     ],
     'validation' => [
     ],

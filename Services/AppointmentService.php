@@ -11,6 +11,9 @@ class AppointmentService
     public $userRepository;
     public $notificationService;
     public $checkinShiftRepository;
+    public $settingsApiController;
+    public $permissionsApiController;
+    public $conversationService;
 
     public function __construct()
     {
@@ -19,6 +22,9 @@ class AppointmentService
         $this->userRepository = app('Modules\Iprofile\Repositories\UserApiRepository');
         $this->notificationService = app("Modules\Notification\Services\Inotification");
         $this->checkinShiftRepository = app("Modules\Icheckin\Repositories\ShiftRepository");
+        $this->settingsApiController = app("Modules\Ihelpers\Http\Controllers\Api\SettingsApiController");
+        $this->permissionsApiController = app("Modules\Ihelpers\Http\Controllers\Api\PermissionsApiController");
+        $this->conversationService = app("Modules\Ichat\Services\ConversationService");
     }
 
     /**
@@ -35,12 +41,9 @@ class AppointmentService
 
         $category = $this->category->getItem($categoryId, json_decode(json_encode($categoryParams)));
 
-        $maxAppointments = setting('iappointment::maxAppointments');
-        $roleToAssigned= setting('iappointment::roleToAssigned');
-
         $userParams = [
             'filter' => [
-                'roleId' => $roleToAssigned ?? 0,
+                'roleId' => 0,
             ]
         ];
 
@@ -48,7 +51,25 @@ class AppointmentService
 
         $users = $this->userRepository->getItemsBy(json_decode(json_encode($userParams)));
         foreach($users as $user){
-            $appointmentCount = Appointment::where('assigned_to',$user->id)->where('status_id',2)->count();
+            $userSettings = $this->settingsApiController->getAll(['userId' => $user->id]); //get user settings
+            $userPermissions = $this->permissionsApiController->getAll(['userId' => $user->id]);
+            if(isset($userSettings['appointmentCategories'])) {
+                if (!in_array($categoryId, $userSettings['appointmentCategories'])) {
+                    continue;
+                }
+            }else if(isset($userPermissions['iappointment.categories.index-all'])) {
+                if(!$userPermissions['iappointment.categories.index-all']) {
+                    continue;
+                }
+            }else{
+                continue;
+            }
+            $appointmentCount =
+                Appointment::where('assigned_to', $user->id)
+                    ->where('customer_id','<>', $user->id)
+                    ->whereIn('category_id', $userSettings['appointmentCategories'] ?? [])
+                    ->where('status_id', 2)->count();
+            $maxAppointments = $userSettings['maxAppointments'] ?? setting('iappointment::maxAppointments');
             if($appointmentCount < $maxAppointments){
                 $shiftParams = [
                     'include' => [],
@@ -84,9 +105,9 @@ class AppointmentService
         $appointmentData = [
             'description' => $category->title,
             'customer_id' => $customerUser->id,
-            'status_id' => 1,
+            'status_id' => $userAssignedTo?2:1,
             'category_id' => $category->id,
-            'assigned_to' => $userAssignedTo->id,
+            'assigned_to' => $userAssignedTo ? $userAssignedTo->id : null,
         ];
         $appointment = $this->appointment->create($appointmentData);
 
@@ -112,23 +133,82 @@ class AppointmentService
 
         if($customerUser){
             $this->notificationService = app("Modules\Notification\Services\Inotification");
-            $this->notificationService->to([
-                "email" => $customerUser->email,
-                "broadcast" => [$customerUser->id],
-                "push" => [$customerUser->id],
-            ])->push(
-                [
-                    "title" => trans("iappointment::appointments.messages.newAppointment"),
-                    "message" => trans("iappointment::appointments.messages.newAppointmentContent",['name' => $customerUser->present()->fullName, 'detail' => $category->title]),
-                    "icon_class" => "fas fa-list-alt",
-                    "buttonText" => trans("iappointment::appointments.button.take"),
-                    "withButton" => true,
-                    "link" => url('/ipanel/#/appoimtment/' . $appointment->id),
-                    "setting" => [
-                        "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
-                    ],
-                ]
-            );
+            if($userAssignedTo){
+                if(is_module_enabled('Ichat')){
+                    $conversationData = [
+                        'users' => [
+                            $userAssignedTo->id,
+                            $customerUser->id,
+                        ],
+                        'entity_type' => Appointment::class,
+                        'entity_id' => $appointment->id,
+                    ];
+                    $this->conversationService->create($conversationData);
+                }
+                $this->notificationService->to([
+                    "email" => $customerUser->email,
+                    "broadcast" => [$customerUser->id],
+                    "push" => [$customerUser->id],
+                ])->push(
+                    [
+                        "title" => trans("iappointment::appointments.messages.newAppointment"),
+                        "message" => trans("iappointment::appointments.messages.newAppointmentWithAssignedContent",['name' => $customerUser->present()->fullName, 'detail' => $category->title, 'assignedName' => $userAssignedTo->present()->fullName]),
+                        "icon_class" => "fas fa-list-alt",
+                        "buttonText" => trans("iappointment::appointments.button.take"),
+                        "withButton" => true,
+                        "link" => url('/ipanel/#/appoimtment/' . $appointment->id),
+                        "setting" => [
+                            "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
+                        ],
+                        "actions" => [
+
+                            [
+                                "label" => "Continuar",
+                                "color" => "warning"
+                            ],
+                            [
+                                "label" => trans("iappointment::appointments.button.take"),
+                                "toVueRoute" => [
+                                    "name" => "api.quasar.route",
+                                    "params" => [
+                                        "id" => $appointment->id
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                );
+            }else{
+                $this->notificationService->to([
+                    "email" => $customerUser->email,
+                    "broadcast" => [$customerUser->id],
+                    "push" => [$customerUser->id],
+                ])->push(
+                    [
+                        "title" => trans("iappointment::appointments.messages.newAppointment"),
+                        "message" => trans("iappointment::appointments.messages.newAppointmentWithoutAssignedContent",['name' => $customerUser->present()->fullName, 'detail' => $category->title]),
+                        "icon_class" => "fas fa-list-alt",
+                        "buttonText" => trans("iappointment::appointments.button.take"),
+                        "withButton" => true,
+                        "link" => url('/ipanel/#/appoimtment/' . $appointment->id),
+                        "setting" => [
+                            "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
+                        ],
+                        "mode" => "modal",
+                        "actions" => [
+
+                            [
+                                "label" => "Continuar",
+                                "color" => "warning"
+                            ],
+                            [
+                                "label" => "Ver Planes",
+                                "toUrl" => url("/planes")
+                            ]
+                        ]
+                    ]
+                );
+            }
         }
 
         return $appointment;

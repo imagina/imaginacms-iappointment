@@ -16,6 +16,7 @@ return [
     'table' => [
     ],
     'form' => [
+        'users' => 'Users assigned for this category',
     ],
     'messages' => [
     ],

@@ -5,4 +5,5 @@ return [
     'enableChat' => 'Enable Chat',
     'maxAppointments' => 'Max. simultaneous assigned Appointments',
     'enableShifts' => 'Enable User Shifts',
+    'appointmentCategories' => 'Appointment Categories',
 ];

@@ -16,6 +16,7 @@ return [
     'table' => [
     ],
     'form' => [
+        'users' => 'Usuarios asignados',
     ],
     'messages' => [
     ],

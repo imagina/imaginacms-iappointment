@@ -12,6 +12,7 @@ return [
     'iappointment.categories' => [
         'manage' => 'iappointment::categories.manage resource',
         'index' => 'iappointment::categories.list resource',
+        'index-all' => 'iappointment::categories.list resource',
         'create' => 'iappointment::categories.create resource',
         'edit' => 'iappointment::categories.edit resource',
         'destroy' => 'iappointment::categories.destroy resource',

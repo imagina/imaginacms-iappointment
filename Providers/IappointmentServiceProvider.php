@@ -50,6 +50,7 @@ class IappointmentServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishConfig('iappointment', 'config');
+        $this->publishConfig('iappointment', 'crud-fields');
         $this->publishConfig('iappointment', 'permissions');
         $this->publishConfig('iappointment', 'settings');
         $this->publishConfig('iappointment', 'settings-fields');

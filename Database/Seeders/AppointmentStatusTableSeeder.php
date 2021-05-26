@@ -29,14 +29,28 @@ class AppointmentStatusTableSeeder extends Seeder
                 if ($locale == 'en') {
                     $status['title'] = trans($statusTrans, [], $locale);
                     $statusCreated = AppointmentStatusTranslation::where("title",$status['title'])->where("locale",$locale)->first();
-                    if(!isset($statusCreated->id))
-                        $appointmentStatus = AppointmentStatus::create($status);
+                    if(!isset($statusCreated->id)) {
+                        $appointmentStatus = AppointmentStatus::where('id',$status['id'])->first();
+                        if(!$appointmentStatus)
+                            $appointmentStatus = AppointmentStatus::create($status);
+                    }else{
+                        $appointmentStatus = AppointmentStatus::where('id',$status['id'])->first();
+                        if(!$appointmentStatus)
+                            $appointmentStatus = AppointmentStatus::create($status);
+                    }
                 } else {
                     $title = trans($statusTrans, [], $locale);
                     $statusCreated = AppointmentStatusTranslation::where("title",$title)->where("locale",$locale)->first();
                     if(!isset($statusCreated->id)){
+                        $appointmentStatus = AppointmentStatus::where('id',$status['id'])->first();
+                        if(!$appointmentStatus)
+                            $appointmentStatus = AppointmentStatus::create($status);
                         $appointmentStatus->translateOrNew($locale)->title = $title;
                         $appointmentStatus->save();
+                    }else{
+                        $appointmentStatus = AppointmentStatus::where('id',$status['id'])->first();
+                        if(!$appointmentStatus)
+                            $appointmentStatus = AppointmentStatus::create($status);
                     }
 
                 }

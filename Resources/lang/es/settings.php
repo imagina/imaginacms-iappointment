@@ -5,4 +5,5 @@ return [
     'enableChat' => 'Habilitar Chat',
     'maxAppointments' => 'Máx. de citas simultáneas asignadas',
     'enableShifts' => 'Habilitar Turnos',
+    'appointmentCategories' => 'Categorías para consultas',
 ];
