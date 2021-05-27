@@ -52,9 +52,7 @@ class AppointmentStatusTableSeeder extends Seeder
                         if(!$appointmentStatus)
                             $appointmentStatus = AppointmentStatus::create($status);
                     }
-
                 }
-
             }//End Foreach
         }//End Foreach
     }

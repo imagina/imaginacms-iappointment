@@ -4,6 +4,7 @@ namespace Modules\Iappointment\Entities;
 
 use Astrotomic\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Model;
+use Modules\Ichat\Entities\Conversation;
 use Modules\Media\Support\Traits\MediaRelation;
 
 class Appointment extends Model
@@ -42,6 +43,10 @@ class Appointment extends Model
 
     public function status(){
         return $this->belongsTo(AppointmentStatus::class,'status_id');
+    }
+
+    public function conversation(){
+        return $this->morphOne(Conversation::class,'entity');
     }
 
     public function customer()

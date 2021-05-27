@@ -10,18 +10,22 @@ return [
         ],
         '2' => [
             'id' => 2,
-            'title' => 'iappointment::appointmentstatuses.statuses.in_progress',
+            'title' => 'iappointment::appointmentstatuses.statuses.in_progress_pre',
         ],
         '3' => [
             'id' => 3,
-            'title' => 'iappointment::appointmentstatuses.statuses.canceled',
+            'title' => 'iappointment::appointmentstatuses.statuses.in_progress',
         ],
         '4' => [
             'id' => 4,
-            'title' => 'iappointment::appointmentstatuses.statuses.expired',
+            'title' => 'iappointment::appointmentstatuses.statuses.canceled',
         ],
         '5' => [
             'id' => 5,
+            'title' => 'iappointment::appointmentstatuses.statuses.expired',
+        ],
+        '6' => [
+            'id' => 6,
             'title' => 'iappointment::appointmentstatuses.statuses.completed',
         ],
     ],

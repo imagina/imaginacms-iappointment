@@ -212,8 +212,6 @@ class AssignAppointment implements ShouldQueue
                             ]
                         );
                     }
-                } else {
-                    \Log::info('All appointments have ben assigned - Nothing to do here');
                 }
             }
         }catch(\Exception $e){

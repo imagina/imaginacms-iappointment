@@ -3,6 +3,7 @@
 namespace Modules\Iappointment\Transformers;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Modules\Ichat\Transformers\ConversationTransformer;
 use Modules\Iprofile\Transformers\UserTransformer;
 
 class AppointmentTransformer extends JsonResource
@@ -23,6 +24,7 @@ class AppointmentTransformer extends JsonResource
             'status' => new AppointmentStatusTransformer($this->whenLoaded('status')),
             'customer' => new UserTransformer($this->whenLoaded('customer')),
             'assigned' => new UserTransformer($this->whenLoaded('assigned')),
+            'conversation' => new ConversationTransformer($this->whenLoaded('conversation')),
         ];
 
         $filter = json_decode($request->filter);

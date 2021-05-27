@@ -10,11 +10,8 @@ class AppointmentLead extends Model
     protected $table = 'iappointment__appointment_leads';
     protected $fillable = [
         'appointment_id',
-        'values'
-    ];
-
-    protected $casts = [
-        'values'=>'array'
+        'name',
+        'value',
     ];
 
     public function appointment(){

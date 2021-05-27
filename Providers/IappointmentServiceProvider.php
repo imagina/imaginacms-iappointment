@@ -124,6 +124,20 @@ class IappointmentServiceProvider extends ServiceProvider
         );
 
 
+        $this->app->bind(
+            'Modules\Iappointment\Repositories\AppointmentLeadRepository',
+            function () {
+                $repository = new \Modules\Iappointment\Repositories\Eloquent\EloquentAppointmentLeadRepository(new \Modules\Iappointment\Entities\AppointmentLead());
+
+                if (! config('app.cache')) {
+                    return $repository;
+                }
+
+                return new \Modules\Iappointment\Repositories\Cache\CacheAppointmentLeadDecorator($repository);
+            }
+        );
+
+
 
 
 
