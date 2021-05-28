@@ -27,7 +27,7 @@ class AppointmentStatusService
             "message" => "Appointment was completed!",
             "link" => url(''),
             "frontEvent" => [
-              "name" => "appointment.was.completed",
+              "name" => "iappointment.appoinment.was.changed",
             ],
             "setting" => ["saveInDatabase" => 1]
           ]);

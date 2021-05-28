@@ -132,7 +132,7 @@ class AssignAppointment implements ShouldQueue
                                                 "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
                                             ],
                                         "frontEvent" => [
-                                                "name" => "new.appointment.assigned",
+                                                "name" => "iappointment.appoinment.was.changed",
                                                 "conversationId" => $appointmentConversation->id
                                             ],
                                         ]

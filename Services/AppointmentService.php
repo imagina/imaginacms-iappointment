@@ -140,8 +140,8 @@ class AppointmentService
                     "setting" => [
                         "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
                     ],
-                    "fromEvent" => [
-                        "name" => "new.appointment.assigned",
+                    "frontEvent" => [
+                        "name" => "iappointment.appoinment.was.changed",
                         "conversationId" => $appointment->conversation->id
                     ],
                 ]
