@@ -21,7 +21,7 @@ class AppointmentStatusService
           $appointment->update(['status_id' => $statusId, 'assigned_to' => $assignedTo]);
           $data = ['notify'=> '1','status_id' => $statusId, 'assigned_to' => $assignedTo, 'comment' => $comment];
           $appointment->statusHistories()->create($data);
-        if($statusId == '6'){
+        if($statusId == '6'){ //COMPLETADO
           $this->inotification->to(['broadcast' => [$appointment->customer->id]])->push([
             "title" => "Appointment was completed",
             "message" => "Appointment was completed!",
@@ -29,6 +29,19 @@ class AppointmentStatusService
             "frontEvent" => [
               "name" => "iappointment.appoinment.was.changed",
             ],
+            "setting" => ["saveInDatabase" => 1]
+          ]);
+        }
+        if($statusId == '4'){//ABANDONADO
+          $this->inotification->to([
+            'broadcast' => [$appointment->customer->id],
+            'email' => [$appointment->customer->email]
+            ])->push([
+            "title" => trans("iappointment::appointments.title.appointmentAbandoned"),
+            "message" => trans("iappointment::appointments.messages.appointmentAbandoned"),
+            "buttonText" => trans("iappointment::appointments.button.retake"),
+            "withButton" => true,
+            "link" => url('/ipanel/#/appointment/' . $item->id),
             "setting" => ["saveInDatabase" => 1]
           ]);
         }

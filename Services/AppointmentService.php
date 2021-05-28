@@ -136,7 +136,7 @@ class AppointmentService
                     "icon_class" => "fas fa-list-alt",
                     "buttonText" => trans("iappointment::appointments.button.take"),
                     "withButton" => true,
-                    "link" => url('/ipanel/#/appoimtment/' . $appointment->id),
+                    "link" => url('/ipanel/#/appointment/' . $appointment->id),
                     "setting" => [
                         "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
                     ],
@@ -162,7 +162,7 @@ class AppointmentService
                         "icon_class" => "fas fa-list-alt",
                         "buttonText" => trans("iappointment::appointments.button.take"),
                         "withButton" => true,
-                        "link" => url('/ipanel/#/appoimtment/' . $appointment->id),
+                        "link" => url('/ipanel/#/appointment/' . $appointment->id),
                         "setting" => [
                             "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
                         ],
@@ -196,7 +196,7 @@ class AppointmentService
                         "icon_class" => "fas fa-list-alt",
                         "buttonText" => trans("iappointment::appointments.button.take"),
                         "withButton" => true,
-                        "link" => url('/ipanel/#/appoimtment/' . $appointment->id),
+                        "link" => url('/ipanel/#/appointment/' . $appointment->id),
                         "setting" => [
                             "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
                         ],

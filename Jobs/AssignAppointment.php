@@ -127,7 +127,7 @@ class AssignAppointment implements ShouldQueue
                                             "icon_class" => "fas fa-list-alt",
                                             "buttonText" => trans("iappointment::appointments.button.take"),
                                             "withButton" => true,
-                                            "link" => url('/ipanel/#/appoimtment/' . $item->id),
+                                            "link" => url('/ipanel/#/appointment/' . $item->id),
                                             "setting" => [
                                                 "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
                                             ],
@@ -166,7 +166,7 @@ class AssignAppointment implements ShouldQueue
                                             "icon_class" => "fas fa-list-alt",
                                             "buttonText" => trans("iappointment::appointments.button.take"),
                                             "withButton" => true,
-                                            "link" => url('/ipanel/#/appoimtment/' . $item->id),
+                                            "link" => url('/ipanel/#/appointment/' . $item->id),
                                             "setting" => [
                                                 "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
                                             ],
@@ -210,7 +210,7 @@ class AssignAppointment implements ShouldQueue
                                 "icon_class" => "fas fa-list-alt",
                                 "buttonText" => trans("iappointment::appointments.button.take"),
                                 "withButton" => true,
-                                "link" => url('/ipanel/#/appoimtment/' . $item->id),
+                                "link" => url('/ipanel/#/appointment/' . $item->id),
                                 "setting" => [
                                     "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
                                 ],
