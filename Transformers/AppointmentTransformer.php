@@ -3,6 +3,7 @@
 namespace Modules\Iappointment\Transformers;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Modules\Iappointment\Entities\AppointmentLead;
 use Modules\Ichat\Transformers\ConversationTransformer;
 use Modules\Iprofile\Transformers\UserTransformer;
 
@@ -22,6 +23,7 @@ class AppointmentTransformer extends JsonResource
             'updatedAt' => $this->when($this->updated_at, $this->updated_at),
             'category' => new CategoryTransformer($this->whenLoaded('category')),
             'status' => new AppointmentStatusTransformer($this->whenLoaded('status')),
+            'fields' => new AppointmentLead($this->whenLoaded('fields')),
             'customer' => new UserTransformer($this->whenLoaded('customer')),
             'assigned' => new UserTransformer($this->whenLoaded('assigned')),
             'conversation' => new ConversationTransformer($this->whenLoaded('conversation')),

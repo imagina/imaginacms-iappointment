@@ -41,9 +41,11 @@ class AppointmentService
 
         $category = $this->category->getItem($categoryId, json_decode(json_encode($categoryParams)));
 
+        $roleToAssigned = setting('iappointment::roleToAssigned');
+
         $userParams = [
             'filter' => [
-                'roleId' => 0,
+                'roleId' => $roleToAssigned,
             ]
         ];
 
@@ -112,6 +114,17 @@ class AppointmentService
         $appointment = $this->appointment->create($appointmentData);
 
         if($userAssignedTo){
+            if(is_module_enabled('Ichat')){
+                $conversationData = [
+                    'users' => [
+                        $userAssignedTo->id,
+                        $customerUser->id,
+                    ],
+                    'entity_type' => Appointment::class,
+                    'entity_id' => $appointment->id,
+                ];
+                $this->conversationService->create($conversationData);
+            }
             $this->notificationService->to([
                 "email" => $userAssignedTo->email,
                 "broadcast" => [$userAssignedTo->id],
@@ -127,6 +140,10 @@ class AppointmentService
                     "setting" => [
                         "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
                     ],
+                    "fromEvent" => [
+                        "name" => "new.appointment.assigned",
+                        "conversationId" => $appointment->conversation->id
+                    ],
                 ]
             );
         }
@@ -134,17 +151,6 @@ class AppointmentService
         if($customerUser){
             $this->notificationService = app("Modules\Notification\Services\Inotification");
             if($userAssignedTo){
-                if(is_module_enabled('Ichat')){
-                    $conversationData = [
-                        'users' => [
-                            $userAssignedTo->id,
-                            $customerUser->id,
-                        ],
-                        'entity_type' => Appointment::class,
-                        'entity_id' => $appointment->id,
-                    ];
-                    $this->conversationService->create($conversationData);
-                }
                 $this->notificationService->to([
                     "email" => $customerUser->email,
                     "broadcast" => [$customerUser->id],
