@@ -22,6 +22,7 @@ class AppointmentTransformer extends JsonResource
             'updatedAt' => $this->when($this->updated_at, $this->updated_at),
             'category' => new CategoryTransformer($this->whenLoaded('category')),
             'status' => new AppointmentStatusTransformer($this->whenLoaded('status')),
+            'fields' => AppointmentLeadTransformer::collection($this->whenLoaded('fields')),
             'customer' => new UserTransformer($this->whenLoaded('customer')),
             'assigned' => new UserTransformer($this->whenLoaded('assigned')),
             'conversation' => new ConversationTransformer($this->whenLoaded('conversation')),

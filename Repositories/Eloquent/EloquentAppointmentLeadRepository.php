@@ -3,8 +3,10 @@
 namespace Modules\Iappointment\Repositories\Eloquent;
 
 
+use Modules\Iappointment\Entities\Appointment;
 use Modules\Iappointment\Repositories\AppointmentLeadRepository;
 use Modules\Core\Repositories\Eloquent\EloquentBaseRepository;
+use Modules\Iappointment\Services\AppointmentStatusService;
 use Modules\Ihelpers\Events\CreateMedia;
 use Modules\Ihelpers\Events\DeleteMedia;
 use Modules\Ihelpers\Events\UpdateMedia;
@@ -127,10 +129,34 @@ class EloquentAppointmentLeadRepository extends EloquentBaseRepository implement
      */
     public function create($data)
     {
+        $appointmentId = $data["appointment_id"] ?? null;
+        
+        if(!empty($appointmentId)){
+          unset($data["appointment_id"]);
+          foreach ($data as $key => $value){
+  
+            $field = $this->model->where("name",$key)->where("appointment_id",$appointmentId)->first();
+            
+            if(isset($field->id)){
+              $field->value = $value;
+              $field->save();
+            }else{
+              $model = $this->model->create([
+                "appointment_id" => $appointmentId,
+                "name" => $key,
+                "value" => $value,
+              ]);
+            }
+          }
+          
+          $appointment = Appointment::find($appointmentId);
 
-        $model = $this->model->create($data);
-
-        return $this->find($model->id);
+          if($appointment->status_id == 2){
+            $appointmentStatusService = app(AppointmentStatusService::class);
+            $appointmentStatusService->setStatus($appointmentId,3,$appointment->assigned_to ?? null);
+          }
+        }
+    
     }
 
 

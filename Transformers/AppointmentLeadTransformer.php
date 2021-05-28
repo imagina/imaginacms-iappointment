@@ -10,7 +10,7 @@ class AppointmentLeadTransformer extends JsonResource
     {
         $data = [
             'id' => $this->id,
-            'name' => $this->title ?? '',
+            'name' => $this->name ?? '',
             'value' => $this->value ?? '',
             'createdAt' => $this->when($this->created_at, $this->created_at),
             'updatedAt' => $this->when($this->updated_at, $this->updated_at),

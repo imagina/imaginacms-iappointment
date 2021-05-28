@@ -8,6 +8,7 @@ use Modules\Iappointment\Events\AppointmentWasCreated;
 use Modules\Iappointment\Events\AppointmentWasUpdated;
 use Modules\Iappointment\Repositories\AppointmentRepository;
 use Modules\Core\Repositories\Eloquent\EloquentBaseRepository;
+use Modules\Iappointment\Services\AppointmentStatusService;
 use Modules\Ihelpers\Events\CreateMedia;
 use Modules\Ihelpers\Events\DeleteMedia;
 use Modules\Ihelpers\Events\UpdateMedia;
@@ -25,12 +26,12 @@ class EloquentAppointmentRepository extends EloquentBaseRepository implements Ap
         $query = $this->model->query();
 
         /*== RELATIONSHIPS ==*/
-        if (in_array('*', $params->include)) {//If Request all relationships
+        if (in_array('*', $params->include ?? [])) {//If Request all relationships
             $query->with(['translations']);
         } else {//Especific relationships
             $includeDefault = ['translations'];//Default relationships
             if (isset($params->include))//merge relations with default relationships
-                $includeDefault = array_merge($includeDefault, $params->include);
+                $includeDefault = array_merge($includeDefault, $params->include ?? []);
             $query->with($includeDefault);//Add Relationships to query
         }
 
@@ -115,7 +116,7 @@ class EloquentAppointmentRepository extends EloquentBaseRepository implements Ap
         $query = $this->model->query();
 
         /*== RELATIONSHIPS ==*/
-        if (in_array('*', $params->include)) {//If Request all relationships
+        if (in_array('*', $params->include ?? [])) {//If Request all relationships
             $query->with(['translations']);
         } else {//Especific relationships
             $includeDefault = ['translations'];//Default relationships
@@ -142,6 +143,8 @@ class EloquentAppointmentRepository extends EloquentBaseRepository implements Ap
             else
                 // find by specific attribute or by id
                 $query->where($field ?? 'id', $criteria);
+        }else{
+          $query->where($field ?? 'id', $criteria);
         }
 
         $this->validateIndexAllPermission($query, $params);
@@ -198,10 +201,13 @@ class EloquentAppointmentRepository extends EloquentBaseRepository implements Ap
         /*== REQUEST ==*/
         $model = $query->where($field ?? 'id', $criteria)->first();
 
-        event(new AppointmentIsUpdating($data, $model));
-
         $model ? $model->update((array)$data) : false;
 
+        $appointmentStatusService = app(AppointmentStatusService::class);
+        
+        if(isset($data["status_id"]))
+          $appointmentStatusService->setStatus($model->id,$data["status_id"],$data["assigned_to"] ?? null, $data["status_comment"] ?? "");
+        
         event(new AppointmentWasUpdated($model));
 
         event(new UpdateMedia($model, $data));

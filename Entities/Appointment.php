@@ -45,8 +45,16 @@ class Appointment extends Model
         return $this->belongsTo(AppointmentStatus::class,'status_id');
     }
 
+    public function statusHistories(){
+        return $this->hasMany(AppointmentStatusHistory::class,'appointment_id');
+    }
+
     public function conversation(){
         return $this->morphOne(Conversation::class,'entity');
+    }
+
+    public function fields(){
+        return $this->hasMany(AppointmentLead::class);
     }
 
     public function customer()

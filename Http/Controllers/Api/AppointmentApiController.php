@@ -144,7 +144,7 @@ class AppointmentApiController extends BaseApiController
 
 
         \DB::beginTransaction();
-        try {
+     //   try {
             $params = $this->getParamsRequest($request);
             $data = $request->input('attributes');
 
@@ -157,11 +157,11 @@ class AppointmentApiController extends BaseApiController
             //Response
             $response = ['data' => 'Item Updated'];
             \DB::commit(); //Commit to Data Base
-        } catch (\Exception $e) {
+     /*   } catch (\Exception $e) {
             \DB::rollback();//Rollback to Data Base
             $status = $this->getStatusError($e->getCode());
             $response = ["errors" => $e->getMessage()];
-        }
+        }*/
         return response()->json($response, $status ?? 200);
     }
 

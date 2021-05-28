@@ -41,9 +41,11 @@ class AppointmentService
 
         $category = $this->category->getItem($categoryId, json_decode(json_encode($categoryParams)));
 
+        $roleToAssigned = setting('iappointment::roleToAssigned');
+
         $userParams = [
             'filter' => [
-                'roleId' => 0,
+                'roleId' => $roleToAssigned,
             ]
         ];
 
