@@ -23,6 +23,23 @@ class PublicController extends BaseApiController
         $this->appointmentService = app('Modules\Iappointment\Services\AppointmentService');
     }
 
+    public function indexCategory(Request $request){
+        $tpl = 'iappointment::frontend.category.index';
+        $ttpl = 'iappointment.category.index';
+
+        if (view()->exists($ttpl)) $tpl = $ttpl;
+
+        $params = $this->getParamsRequest($request);
+
+        $categories = $this->category->getItemsBy($params);
+
+        if(!$categories)
+            return abort(404);
+
+        return view($tpl, compact('categories'));
+
+    }
+
     public function showCategory($criteria, Request $request){
         if(!auth()->check()){
             return redirect("/ipanel/#/auth/login"."?redirectTo=".$request->url());

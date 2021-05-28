@@ -21,6 +21,7 @@ class AssignAppointment implements ShouldQueue
     public $settingsApiController;
     public $permissionsApiController;
     public $conversationService;
+    public $statusService;
 
     public function __construct()
     {
@@ -30,6 +31,7 @@ class AssignAppointment implements ShouldQueue
         $this->settingsApiController = app("Modules\Ihelpers\Http\Controllers\Api\SettingsApiController");
         $this->permissionsApiController = app("Modules\Ihelpers\Http\Controllers\Api\PermissionsApiController");
         $this->conversationService = app("Modules\Ichat\Services\ConversationService");
+        $this->statusService = app("Modules\Iappointment\Services\AppointmentStatusService");
     }
 
 
@@ -42,106 +44,108 @@ class AssignAppointment implements ShouldQueue
 
             $userParams = [
                 'filter' => [
-                    'roleId' => 0,
+                    'roleId' => $roleToAssigned ?? 0,
                 ]
             ];
             $users = $this->userRepository->getItemsBy(json_decode(json_encode($userParams)));
 
-            foreach ($users as $user) {
-                $isAssigned = false;
-                $result = Appointment::whereNull('assigned_to')->where('customer_id','<>',$user->id)->get();
+            foreach ($users as $professionalUser) {
+                $canBeAssigned = false;
+                $result = Appointment::where('status_id', 1)->where('customer_id','<>',$professionalUser->id)->get();
                 if (count($result) > 0) {
                     foreach ($result as $item) {
-                        $userSettings = $this->settingsApiController->getAll(['userId' => $user->id]); //get user settings
-                        $userPermissions = $this->permissionsApiController->getAll(['userId' => $user->id]);
+                        $userSettings = $this->settingsApiController->getAll(['userId' => $professionalUser->id]); //get user settings
+                        $userPermissions = $this->permissionsApiController->getAll(['userId' => $professionalUser->id]);
                         if(isset($userSettings['appointmentCategories'])) {
                             if (!in_array($item->category_id, $userSettings['appointmentCategories'])) {
-                                $isAssigned = false;
+                                $canBeAssigned = false;
                                 continue;
                             }
                         }else if(isset($userPermissions['iappointment.categories.index-all'])) {
-                            \Log::info($userPermissions);
                             if(!$userPermissions['iappointment.categories.index-all']) {
-                                $isAssigned = false;
+                                $canBeAssigned = false;
                                 continue;
                             }
                         }else{
-                            $isAssigned = false;
+                            $canBeAssigned = false;
                             continue;
                         }
                         $appointmentCount =
-                            Appointment::where('assigned_to', $user->id)
-                                ->where(function($query) use($user){
-                                    $query->where('customer_id','<>', $user->id)
+                            Appointment::where('assigned_to', $professionalUser->id)
+                                ->where(function($query) use($professionalUser){
+                                    $query->where('customer_id','<>', $professionalUser->id)
                                     ->orWhereNull('customer_id');
                                 })
                                 ->whereIn('category_id', $userSettings['appointmentCategories'] ?? [])
                                 ->where('status_id', '>=', 2)->count();
                         $maxAppointments = $userSettings['maxAppointments'] ?? setting('iappointment::maxAppointments');
-                        \Log::info("Appointment count for {$user->present()->fullName} > $appointmentCount - $maxAppointments");
+                        \Log::info("Appointment count for {$professionalUser->present()->fullName} > $appointmentCount - $maxAppointments");
                         if ($appointmentCount < $maxAppointments) {
                             $shiftParams = [
                                 'include' => [],
-                                'user' => $user,
+                                'user' => $professionalUser,
                                 'take' => false,
                                 'filter' => [
-                                    'repId' => $user->id,
-                                    'date' => [
-                                        'field' => 'checkout_at',
-                                        'to' => now()->toDateTimeString(),
-                                        'range' => "1"
-                                    ]
+                                    'repId' => $professionalUser->id,
+                                    'active' => '1',
                                 ]
                             ];
-                            $isAssigned = true;
+                            $canBeAssigned = true;
                             if(setting('iappointment::enableShifts') === '1') {
                                 if (is_module_enabled('Icheckin')) {
                                     $shifts = $this->checkinShiftRepository->getItemsBy(json_decode(json_encode($shiftParams)));
                                     if (count($shifts) > 0) {
-                                        $isAssigned = true;
+                                        $canBeAssigned = true;
                                     } else {
-                                        $isAssigned = false;
-                                        \Log::info("User {$user->present()->fullName} does not have active shifts");
+                                        $canBeAssigned = false;
+                                        \Log::info("User {$professionalUser->present()->fullName} does not have active shifts");
                                     }
                                 }
                             }
-                            if($isAssigned){
+                            if($canBeAssigned){
                                 $customerUser = $item->customer;
                                 $appointmentConversation = Conversation::where('entity_type', Appointment::class)
                                     ->where('entity_id', $item->id)->first();
-                                $item->update([
+                                /*$item->update([
                                     'assigned_to' => $user->id,
                                     'status_id' => 2,
-                                ]);
-                                $this->notificationService->to([
-                                    "email" => $user->email,
-                                    "broadcast" => [$user->id],
-                                    "push" => [$user->id],
-                                ])->push(
-                                    [
-                                        "title" => trans("iappointment::appointments.messages.newAppointment"),
-                                        "message" => trans("iappointment::appointments.messages.newAppointmentContent", ['name' => $user->present()->fullName, 'detail' => $item->category->title]),
-                                        "icon_class" => "fas fa-list-alt",
-                                        "buttonText" => trans("iappointment::appointments.button.take"),
-                                        "withButton" => true,
-                                        "link" => url('/ipanel/#/appoimtment/' . $item->id),
-                                        "setting" => [
-                                            "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
-                                        ],
+                                ]);*/
+
+                                $prevAssignedTo = $item;
+
+                                $this->statusService->setStatus($item->id, 2, $professionalUser->id);
+
+                                if($appointmentConversation) {
+                                    $this->notificationService->to([
+                                        "email" => $professionalUser->email,
+                                        "broadcast" => [$professionalUser->id],
+                                        "push" => [$professionalUser->id],
+                                    ])->push(
+                                        [
+                                            "title" => trans("iappointment::appointments.messages.newAppointment"),
+                                            "message" => trans("iappointment::appointments.messages.newAppointmentContent", ['name' => $professionalUser->present()->fullName, 'detail' => $item->category->title]),
+                                            "icon_class" => "fas fa-list-alt",
+                                            "buttonText" => trans("iappointment::appointments.button.take"),
+                                            "withButton" => true,
+                                            "link" => url('/ipanel/#/appoimtment/' . $item->id),
+                                            "setting" => [
+                                                "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
+                                            ],
                                         "frontEvent" => [
-                                            "name" => "new.appointment.assigned",
-                                            "conversationId" => $appointmentConversation->id
-                                        ],
-                                    ]
-                                );
-                                \Log::info("Appointment #{$item->id} assigned to user {$user->present()->fullName}");
+                                                "name" => "new.appointment.assigned",
+                                                "conversationId" => $appointmentConversation->id
+                                            ],
+                                        ]
+                                    );
+                                }
+                                \Log::info("Appointment #{$item->id} assigned to user {$professionalUser->present()->fullName}");
                                 if($customerUser){
                                     if(is_module_enabled('Ichat')){
-                                        $existsConversation = Modules\Ichat\Entities\Conversation::where('entity_type',Appointment::class)
+                                        $existsConversation = Conversation::where('entity_type',Appointment::class)
                                             ->where('entity_id', $item->id)->count();
                                         $conversationData = [
                                             'users' => [
-                                                $user->id,
+                                                $professionalUser->id,
                                                 $customerUser->id,
                                             ],
                                             'entity_type' => Appointment::class,
@@ -150,6 +154,7 @@ class AssignAppointment implements ShouldQueue
                                         if($existsConversation == 0)
                                             $this->conversationService->create($conversationData);
                                     }
+                                    $this->notificationService = app("Modules\Notification\Services\Inotification");
                                     $this->notificationService->to([
                                         "email" => $customerUser->email,
                                         "broadcast" => [$customerUser->id],
@@ -186,15 +191,15 @@ class AssignAppointment implements ShouldQueue
                                     );
                                 }
                             }else{
-                                \Log::info("User {$user->present()->fullName} can't be assigned yet");
+                                \Log::info("User {$professionalUser->present()->fullName} can't be assigned yet");
                             }
                             break;
                         }else{
-                            \Log::info("User {$user->present()->fullName} is out of appointments");
-                            $isAssigned = false;
+                            \Log::info("User {$professionalUser->present()->fullName} is out of appointments");
+                            $canBeAssigned = false;
                         }
                     }
-                    if(!$isAssigned){
+                    if(!$canBeAssigned){
                         $adminEmails = setting('isite::emails');
                         $this->notificationService->to([
                             "email" => $adminEmails,
