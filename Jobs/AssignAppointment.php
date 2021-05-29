@@ -25,6 +25,7 @@ class AssignAppointment implements ShouldQueue
 
     public function handle()
     {
+
         $this->appointmentService->assign();
     }
 }

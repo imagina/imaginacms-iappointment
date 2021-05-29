@@ -20,6 +20,7 @@ class AppointmentIsUpdating
     {
         $this->data = $data;
         $this->model = $model;
+      
     }
 
 }

@@ -42,8 +42,8 @@ class AppointmentService
         if($customerUser){
             \Log::info("Creating new Appointment");
             $appointmentExist = Appointment::where('customer_id', $customerUser->id)
-                                    ->where('category_id', $categoryId)
-                                    ->whereIn('status_id',[4,6])->count();
+                ->where('category_id', $categoryId)
+                ->whereIn('status_id',[4,6])->count();
             if($appointmentExist == 0) {
                 $appointmentData = [
                     'description' => $category->title,

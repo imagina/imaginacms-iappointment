@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 // Base Api
+use Modules\Iappointment\Entities\Appointment;
 use Modules\Iappointment\Http\Requests\CreateAppointmentLeadRequest;
 use Modules\Iappointment\Http\Requests\UpdateAppointmentLeadRequest;
 use Modules\Ihelpers\Http\Controllers\Api\BaseApiController;
@@ -97,7 +98,9 @@ class AppointmentLeadApiController extends BaseApiController
      */
     public function create(Request $request)
     {
+
         \DB::beginTransaction();
+        
         try {
             $data = $request->input('attributes') ?? [];//Get data
             //Validate Request
@@ -105,10 +108,10 @@ class AppointmentLeadApiController extends BaseApiController
             $this->validateRequestApi(new CreateAppointmentLeadRequest($data));
 
             //Create item
-            $appointmentLead = $this->appointmentLead->create($data);
+            $this->appointmentLead->create($data);
 
             //Response
-            $response = ["data" => new AppointmentLeadTransformer($appointmentLead)];
+            $response = ["data" => ""];
             \DB::commit(); //Commit to Data Base
         } catch (\Exception $e) {
             \DB::rollback();//Rollback to Data Base
