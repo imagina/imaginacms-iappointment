@@ -6,4 +6,5 @@ return [
     'maxAppointments' => 'Max. simultaneous assigned Appointments',
     'enableShifts' => 'Enable User Shifts',
     'appointmentCategories' => 'Appointment Categories',
+    'categoryIndexTitle' => 'Category Index Title',
 ];

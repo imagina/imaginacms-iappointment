@@ -6,4 +6,5 @@ return [
     'maxAppointments' => 'Máx. de citas simultáneas asignadas',
     'enableShifts' => 'Habilitar Turnos',
     'appointmentCategories' => 'Categorías para consultas',
+    'categoryIndexTitle' => 'Título para el índice de las categorías',
 ];

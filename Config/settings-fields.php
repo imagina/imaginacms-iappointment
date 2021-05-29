@@ -27,6 +27,15 @@ return [
             'select' => ['label' => 'name', 'id' => 'id']
         ]
     ],
+    'categoryIndexTitle' => [
+        'name' => 'iappointment::categoryIndexTitle',
+        'value' => '',
+        'type' => 'input',
+        'props' => [
+            'type' => 'text',
+            'label' => 'iappointment::settings.categoryIndexTitle',
+        ],
+    ],
     'enableChat' => [
         'name' => 'iappointment::enableChat',
         'value' => '0',

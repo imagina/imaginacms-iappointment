@@ -40,6 +40,33 @@ class PublicController extends BaseApiController
 
     }
 
+    public function showParentCategory($criteria, Request $request){
+        $tpl = 'iappointment::frontend.category.index';
+        $ttpl = 'iappointment.category.index';
+
+        if (view()->exists($ttpl)) $tpl = $ttpl;
+
+        $params = $this->getParamsRequest($request);
+
+        $params->filter = new \stdClass();
+
+        $params->filter->field = 'slug';
+
+        $category = $this->category->getItem($criteria, $params);
+
+        unset($params->filter->field);
+
+        $params->filter->parent = $category->id;
+
+        $categories = $this->category->getItemsBy($params);
+
+        if(!$category)
+            return abort(404);
+
+        return view($tpl, compact('category','categories'));
+
+    }
+
     public function showCategory($criteria, Request $request){
         if(!auth()->check()){
             return redirect("/ipanel/#/auth/login"."?redirectTo=".$request->url());
@@ -54,7 +81,7 @@ class PublicController extends BaseApiController
         $locale = \LaravelLocalization::setLocale() ?: \App::getLocale();
 
         if($subscriptionValidate){
-            $appointment = $this->appointmentService->create($criteria);
+            $appointment = $this->appointmentService->assign($criteria);
             return redirect("/ipanel/#/appointment/{$appointment->id}");
         }
         return redirect()->route($locale . '.iplan.plan.index');

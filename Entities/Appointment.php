@@ -69,4 +69,10 @@ class Appointment extends Model
         return $this->belongsTo("Modules\\User\\Entities\\{$driver}\\User", 'assigned_to');
     }
 
+    public function assignedHistory()
+    {
+        $entityPath = "Modules\\User\\Entities\\" . config('asgard.user.config.driver') . "\\User";
+        return $this->belongsToMany($entityPath, 'iappointment__appointment_assign_history','appointment_id','assigned_to')->withTimestamps();
+    }
+
 }
