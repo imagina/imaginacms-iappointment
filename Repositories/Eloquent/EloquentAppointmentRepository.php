@@ -53,6 +53,7 @@ class EloquentAppointmentRepository extends EloquentBaseRepository implements Ap
             if (isset($filter->assigned)) {
                 $query->where('assigned_to', $filter->assigned);
             }
+            
 
             if (isset($filter->search)) { //si hay que filtrar por rango de precio
                 $criterion = $filter->search;
@@ -208,6 +209,9 @@ class EloquentAppointmentRepository extends EloquentBaseRepository implements Ap
         if(isset($data["status_id"]))
           $appointmentStatusService->setStatus($model->id,$data["status_id"],$data["assigned_to"] ?? null, $data["status_comment"] ?? "");
         
+        if(isset($data['assigned_to']))
+          $model->assignedHistory()->attach($data['assigned_to']);
+
         event(new AppointmentWasUpdated($model));
 
         event(new UpdateMedia($model, $data));
