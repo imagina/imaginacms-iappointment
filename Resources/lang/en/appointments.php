@@ -25,6 +25,7 @@ return [
         'newAppointmentContent' => 'Hi, <b>:name</b>. An appointment about <b>:detail</b> has been assigned to you.',
         'newAppointmentWithAssignedContent' => 'Hi, <b>:name</b>. An appointment about <b>:detail</b> has been assigned to you with the doctor <b>:assignedName</b>',
         'newAppointmentWithoutAssignedContent' => 'Hi, <b>:name</b>. An appointment about <b>:detail</b> has been assigned to you, but a doctor has not been assigned yet.',
+        'newAppointmentSubscriptionContent' => 'Hi, <b>:name</b>. You can take an appointment anytime with us.',
     ],
     'validation' => [
     ],

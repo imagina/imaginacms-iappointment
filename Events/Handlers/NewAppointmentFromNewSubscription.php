@@ -4,10 +4,14 @@ namespace Modules\Iappointment\Events\Handlers;
 class NewAppointmentFromNewSubscription
 {
     private $appointmentService;
+    private $notificationService;
+    private $userRepository;
 
     public function __construct()
     {
         $this->appointmentService = app('Modules\Iappointment\Services\AppointmentService');
+        $this->notificationService = app("Modules\Notification\Services\Inotification");
+        $this->userRepository = app('Modules\Iprofile\Repositories\UserApiRepository');
     }
 
     public function handle($event)
@@ -17,11 +21,49 @@ class NewAppointmentFromNewSubscription
 
             $model = $event->model;
 
-            \Log::info('Appointment category: ' . $model->options->appointmentCategoryId);
+            if(isset($model->options) && isset($model->options->appointmentCategoryId)) {
 
-            if ($model->entity === "Modules\\User\\Entities\\{$userDriver}\\User") {
-                $appointment = $this->appointmentService->create($model->options->appointmentCategoryId, $model);
-                \Log::info('New Appointment was created to customer: '.$appointment->customer->email.' - Category: '.$appointment->category->title);
+                \Log::info('Appointment category: ' . $model->options->appointmentCategoryId);
+
+                if ($model->entity === "Modules\\User\\Entities\\{$userDriver}\\User") {
+                    $appointment = $this->appointmentService->assign($model->options->appointmentCategoryId, $model);
+                    \Log::info('New Appointment was created to customer: ' . $appointment->customer->email . ' - Category: ' . $appointment->category->title);
+                }
+            }else{
+                if ($model->entity === "Modules\\User\\Entities\\{$userDriver}\\User") {
+                    $customerUser = $this->userRepository->getItem($model->entity_id, json_decode(json_encode(['include' => [], 'filter' => []])));
+                    $this->notificationService->to([
+                        "email" => $customerUser->email,
+                        "broadcast" => [$customerUser->id],
+                        "push" => [$customerUser->id],
+                    ])->push(
+                        [
+                            "title" => trans("iappointment::appointments.messages.newAppointmentSubscription"),
+                            "message" => trans("iappointment::appointments.messages.newAppointmentSubscriptionContent", ['name' => $customerUser->present()->fullName]),
+                            "icon_class" => "fas fa-list-alt",
+                            "buttonText" => trans("iappointment::appointments.button.take"),
+                            "withButton" => true,
+                            "link" => url(trans('iappointment::routes.appointmentCategory.index')),
+                            "setting" => [
+                                "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
+                            ],
+                            "mode" => "modal",
+                            "actions" => [
+
+                                [
+                                    "label" => "Continuar",
+                                    "color" => "warning"
+                                ],
+                                [
+                                    "label" => trans("iappointment::appointments.button.take"),
+                                    "toVueRoute" => [
+                                        "name" => "qappointment.panel.appointments.index"
+                                    ]
+                                ]
+                            ]
+                        ]
+                    );
+                }
             }
         }catch(\Exception $e){
             \Log::info($e->getMessage().' - '.$e->getFile().' - '.$e->getLine());

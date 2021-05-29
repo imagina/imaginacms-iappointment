@@ -22,7 +22,7 @@ return [
     'validation' => [
     ],
     'statuses' => [
-        'canceled'          => 'Canceled',
+        'canceled'          => 'Abandoned',
         'completed'         => 'Completed',
         'pending'           => 'Pending',
         'in_progress'       => 'In progress Conversation',
