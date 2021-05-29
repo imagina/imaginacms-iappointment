@@ -4,6 +4,8 @@ return [
     'iappointment.appointments' => [
         'manage' => 'iappointment::appointments.manage resource',
         'index' => 'iappointment::appointments.list resource',
+        'assigned-index' => 'iappointment::appointments.assigned-index resource',
+        'customer-show' => 'iappointment::appointments.customer-show resource',
         'index-all' => 'iappointment::appointments.list resource',
         'create' => 'iappointment::appointments.create resource',
         'edit' => 'iappointment::appointments.edit resource',

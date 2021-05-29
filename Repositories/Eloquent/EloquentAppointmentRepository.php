@@ -201,21 +201,23 @@ class EloquentAppointmentRepository extends EloquentBaseRepository implements Ap
 
         /*== REQUEST ==*/
         $model = $query->where($field ?? 'id', $criteria)->first();
-
-        $model ? $model->update((array)$data) : false;
-
+  
+      if(isset($data["status_id"]) && $model->status_id != $data["status_id"]){
         $appointmentStatusService = app(AppointmentStatusService::class);
-
-        if(isset($data["status_id"]))
-          $appointmentStatusService->setStatus($model->id,$data["status_id"],$data["assigned_to"] ?? null, $data["status_comment"] ?? "");
-
+        $appointmentStatusService->setStatus($model->id,$data["status_id"],$data["assigned_to"] ?? null, $data["status_comment"] ?? "");
+  
+        unset($data["status_id"]);
+      }
+      
+  
+      $model ? $model->update((array)$data) : false;
+  
+  
+      
+      
         if(isset($data['assigned_to']))
           $model->assignedHistory()->attach($data['assigned_to']);
 
-
-        
-        if(isset($data["status_id"]))
-          $appointmentStatusService->setStatus($model->id,$data["status_id"],$data["assigned_to"] ?? null, $data["status_comment"] ?? "");
         
         event(new AppointmentWasUpdated($model));
 

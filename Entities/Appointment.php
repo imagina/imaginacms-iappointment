@@ -45,7 +45,7 @@ class Appointment extends Model
         return $this->belongsTo(AppointmentStatus::class,'status_id');
     }
 
-    public function statusHistories(){
+    public function statusHistory(){
         return $this->hasMany(AppointmentStatusHistory::class,'appointment_id');
     }
 

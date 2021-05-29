@@ -82,7 +82,7 @@ class PublicController extends BaseApiController
 
         if($subscriptionValidate){
             $appointment = $this->appointmentService->assign($criteria);
-            return redirect("/ipanel/#/appointment/{$appointment->id}");
+            return redirect("/ipanel/#/appointments/customer/{$appointment->id}");
         }
         return redirect()->route($locale . '.iplan.plan.index');
     }
