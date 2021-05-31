@@ -76,12 +76,12 @@ class PublicController extends BaseApiController
 
         request()->session()->put('category_id',$criteria);
 
-        $subscriptionValidate = $this->subscriptionService->validate(new Appointment());
+        $subscription = $this->subscriptionService->validate(new Appointment());
 
         $locale = \LaravelLocalization::setLocale() ?: \App::getLocale();
 
-        if($subscriptionValidate){
-            $appointment = $this->appointmentService->assign($criteria);
+        if($subscription){
+            $appointment = $this->appointmentService->assign($criteria,$subscription);
             return redirect("/ipanel/#/appointments/customer/{$appointment->id}");
         }
         return redirect()->route($locale . '.iplan.plan.index');

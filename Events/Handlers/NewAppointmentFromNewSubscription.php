@@ -26,8 +26,7 @@ class NewAppointmentFromNewSubscription
                 \Log::info('Appointment category: ' . $subscription->options->appointmentCategoryId);
 
                 if ($subscription->entity === "Modules\\User\\Entities\\{$userDriver}\\User") {
-                    $appointment = $this->appointmentService->assign($subscription->options->appointmentCategoryId, $subscription);
-                    \Log::info('New Appointment was created to customer: ' . $appointment->customer->email . ' - Category: ' . $appointment->category->title);
+                    $this->appointmentService->assign($subscription->options->appointmentCategoryId, $subscription);
                 }
             }else{
                 if ($subscription->entity === "Modules\\User\\Entities\\{$userDriver}\\User") {
