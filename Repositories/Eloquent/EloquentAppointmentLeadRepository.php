@@ -4,9 +4,9 @@ namespace Modules\Iappointment\Repositories\Eloquent;
 
 
 use Modules\Iappointment\Entities\Appointment;
+use Modules\Iappointment\Events\AppointmentStatusWasUpdated;
 use Modules\Iappointment\Repositories\AppointmentLeadRepository;
 use Modules\Core\Repositories\Eloquent\EloquentBaseRepository;
-use Modules\Iappointment\Services\AppointmentStatusService;
 use Modules\Ihelpers\Events\CreateMedia;
 use Modules\Ihelpers\Events\DeleteMedia;
 use Modules\Ihelpers\Events\UpdateMedia;
@@ -152,8 +152,9 @@ class EloquentAppointmentLeadRepository extends EloquentBaseRepository implement
           $appointment = Appointment::find($appointmentId);
 
           if($appointment->status_id == 2){
-            $appointmentStatusService = app(AppointmentStatusService::class);
-            $appointmentStatusService->setStatus($appointmentId,3,$appointment->assigned_to ?? null);
+            $appointment->status_id = 3;
+            $appointment->save();
+            event(new AppointmentStatusWasUpdated($appointment,["status_id" => 3, "status_comment" => "Appointment Preform was completed","assigned_to" => $appointment->assigned_to]));
           }
         }
     

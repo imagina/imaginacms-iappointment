@@ -4,10 +4,12 @@ namespace Modules\Iappointment\Providers;
 
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
+use Modules\Iappointment\Events\AppointmentStatusWasUpdated;
 use Modules\Iappointment\Events\AppointmentWasCreated;
 use Modules\Iappointment\Events\CategoryWasCreated;
 use Modules\Iappointment\Events\CategoryWasDeleted;
 use Modules\Iappointment\Events\CategoryWasUpdated;
+use Modules\Iappointment\Events\Handlers\AppointmentStatusHandler;
 use Modules\Iappointment\Events\Handlers\NewAppointmentFromNewSubscription;
 use Modules\Iappointment\Events\Handlers\ValidateAppointment;
 use Modules\Iforms\Events\Handlers\HandleFormeable;
@@ -31,12 +33,18 @@ class EventServiceProvider extends ServiceProvider
             CategoryWasUpdated::class,
             [HandleFormeable::class, 'handle']
         );
-
-        //Listen category was deleted event
-        Event::listen(
-            CategoryWasDeleted::class,
-            [HandleFormeable::class, 'handle']
-        );
+  
+      //Listen category was deleted event
+      Event::listen(
+        CategoryWasDeleted::class,
+        [HandleFormeable::class, 'handle']
+      );
+      
+      //Listen appointment status was updated
+      Event::listen(
+        AppointmentStatusWasUpdated::class,
+        [AppointmentStatusHandler::class, 'handle']
+      );
 
         if(is_module_enabled('Iplan')){
             Event::listen(

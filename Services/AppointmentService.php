@@ -28,10 +28,10 @@ class AppointmentService
     $this->conversationService = app("Modules\Ichat\Services\ConversationService");
   }
 
-  function assign($categoryId = null, $model = false)
+  function assign($categoryId = null, $subscription = false)
   {
 
-    $customerUser = auth()->user() ?? ($model ? $this->userRepository->getItem($model->entity_id, json_decode(json_encode(['filter' => []]))) : null);
+    $customerUser = auth()->user() ?? ($subscription ? $this->userRepository->getItem($subscription->entity_id, json_decode(json_encode(['filter' => []]))) : null);
 
     $categoryParams = [
       'include' => [],
@@ -207,46 +207,6 @@ class AppointmentService
                 $professionalUser->id,
               ]);
             }
-            //send email and notify to proffesional
-            $this->notificationService = app("Modules\Notification\Services\Inotification");
-            $this->notificationService->to([
-                "email" => $professionalUser->email,
-                "broadcast" => [$professionalUser->id],
-                "push" => [$professionalUser->id],
-            ])->push(
-                [
-                    "title" => trans("iappointment::appointments.messages.newAppointment"),
-                    "message" => trans("iappointment::appointments.messages.newAppointmentContent", ['name' => $professionalUser->present()->fullName, 'detail' => $item->category->title]),
-                    "icon_class" => "fas fa-list-alt",
-                    "buttonText" => trans("iappointment::appointments.button.take"),
-                    "withButton" => true,
-                    "link" => url('/ipanel/#/appointments/assigned/index/'),
-                    "setting" => [
-                        "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
-                    ],
-                    "frontEvent" => [
-                        "name" => "iappointment.appoinment.was.changed",
-                        "conversationId" => $appointmentConversation->id
-                    ],
-                    "mode" => "modal",
-                    "actions" => [
-
-                        [
-                            "label" => "Continuar",
-                            "color" => "warning"
-                        ],
-                        [
-                            "label" => trans("iappointment::appointments.button.take"),
-                            "toVueRoute" => [
-                                "name" => "qappointment.panel.appointments.index",
-                                "params" => [
-                                    "id" => $item->id
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
-            );
           }
           \Log::info("Appointment #{$item->id} assigned to user {$professionalUser->present()->fullName}");
           if ($customerUser) {

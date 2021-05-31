@@ -2,13 +2,14 @@
 
 namespace Modules\Iappointment\Repositories\Eloquent;
 
+use Modules\Iappointment\Entities\AppointmentStatus;
 use Modules\Iappointment\Events\AppointmentIsCreating;
 use Modules\Iappointment\Events\AppointmentIsUpdating;
+use Modules\Iappointment\Events\AppointmentStatusWasUpdated;
 use Modules\Iappointment\Events\AppointmentWasCreated;
 use Modules\Iappointment\Events\AppointmentWasUpdated;
 use Modules\Iappointment\Repositories\AppointmentRepository;
 use Modules\Core\Repositories\Eloquent\EloquentBaseRepository;
-use Modules\Iappointment\Services\AppointmentStatusService;
 use Modules\Ihelpers\Events\CreateMedia;
 use Modules\Ihelpers\Events\DeleteMedia;
 use Modules\Ihelpers\Events\UpdateMedia;
@@ -202,18 +203,10 @@ class EloquentAppointmentRepository extends EloquentBaseRepository implements Ap
         /*== REQUEST ==*/
         $model = $query->where($field ?? 'id', $criteria)->first();
   
-      if(isset($data["status_id"]) && $model->status_id != $data["status_id"]){
-        $appointmentStatusService = app(AppointmentStatusService::class);
-        $appointmentStatusService->setStatus($model->id,$data["status_id"],$data["assigned_to"] ?? null, $data["status_comment"] ?? "");
-  
-        unset($data["status_id"]);
-      }
-      
+      if(isset($data["status_id"]) && $model->status_id != $data["status_id"])
+        event(new AppointmentStatusWasUpdated($model,$data));
   
       $model ? $model->update((array)$data) : false;
-  
-  
-      
       
         if(isset($data['assigned_to']))
           $model->assignedHistory()->attach($data['assigned_to']);

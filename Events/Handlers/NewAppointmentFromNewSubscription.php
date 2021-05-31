@@ -19,19 +19,19 @@ class NewAppointmentFromNewSubscription
         try {
             $userDriver = config('asgard.user.config.driver');
 
-            $model = $event->model;
+            $subscription = $event->model;
 
-            if(isset($model->options) && isset($model->options->appointmentCategoryId)) {
+            if(isset($subscription->options) && isset($subscription->options->appointmentCategoryId)) {
 
-                \Log::info('Appointment category: ' . $model->options->appointmentCategoryId);
+                \Log::info('Appointment category: ' . $subscription->options->appointmentCategoryId);
 
-                if ($model->entity === "Modules\\User\\Entities\\{$userDriver}\\User") {
-                    $appointment = $this->appointmentService->assign($model->options->appointmentCategoryId, $model);
+                if ($subscription->entity === "Modules\\User\\Entities\\{$userDriver}\\User") {
+                    $appointment = $this->appointmentService->assign($subscription->options->appointmentCategoryId, $subscription);
                     \Log::info('New Appointment was created to customer: ' . $appointment->customer->email . ' - Category: ' . $appointment->category->title);
                 }
             }else{
-                if ($model->entity === "Modules\\User\\Entities\\{$userDriver}\\User") {
-                    $customerUser = $this->userRepository->getItem($model->entity_id, json_decode(json_encode(['include' => [], 'filter' => []])));
+                if ($subscription->entity === "Modules\\User\\Entities\\{$userDriver}\\User") {
+                    $customerUser = $this->userRepository->getItem($subscription->entity_id, json_decode(json_encode(['include' => [], 'filter' => []])));
                     $this->notificationService->to([
                         "email" => $customerUser->email,
                         "broadcast" => [$customerUser->id],
