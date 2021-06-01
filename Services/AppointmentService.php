@@ -28,24 +28,25 @@ class AppointmentService
     $this->conversationService = app("Modules\Ichat\Services\ConversationService");
   }
 
-  function assign($categoryId = null, $subscription = false)
+  function assign($categoryId = null, $subscription = false, $customerId = null, $appointmentId = null)
   {
 
-    $customerUser = auth()->user() ?? ($subscription ? $this->userRepository->getItem($subscription->entity_id, json_decode(json_encode(['filter' => []]))) : null);
+    $customerUser =  $this->userRepository->getItem($subscription->entity_id ?? $customerId ?? null, json_decode(json_encode(['filter' => []])));
 
     $categoryParams = [
       'include' => [],
       'filter' => [],
     ];
 
+    //if exist appointmentId
+    if(!empty($appointmentId)){
+      $appointment = $this->appointment->getItem($appointmentId); //get appointment model
+    }
+
     $category = $this->category->getItem($categoryId, json_decode(json_encode($categoryParams)));
 
     if (isset($customerUser->id)) {
       \Log::info("Creating new Appointment");
-      $appointmentExist = Appointment::where('customer_id', $customerUser->id)
-        ->where('category_id', $categoryId)
-        ->whereIn('status_id', [4, 6])->count(); //count if the customer has active appointments
-      if ($appointmentExist == 0) {
         //create new appointment in case of non-active appointments for the customer
         $appointmentData = [
           'description' => $category->title,
@@ -92,8 +93,6 @@ class AppointmentService
           ]
         );
 
-        return $appointment;
-      }
     }
 
     $roleToAssigned = setting('iappointment::roleToAssigned'); //get the proffesional role assigned in settings
@@ -111,41 +110,42 @@ class AppointmentService
     foreach ($users as $professionalUser) {
       $canBeAssigned = false; //check if the user can be assigned
 
-      $userSettings = $this->settingsApiController->getAll(['userId' => $professionalUser->id]); //get user settings
-      $userPermissions = $this->permissionsApiController->getAll(['userId' => $professionalUser->id]); //get user permissions
+      //get professional settings
+      $professionalSettings = $this->settingsApiController->getAll(['userId' => $professionalUser->id]);
+
+      // buscando cantidad de citas ya asignadas al profesional
       $appointmentCount =
         Appointment::where('assigned_to', $professionalUser->id)
           ->where(function ($query) use ($professionalUser) {
             $query->where('customer_id', '<>', $professionalUser->id)
               ->orWhereNull('customer_id');
           });
-      if (!empty($userSettings['appointmentCategories']))
-        $appointmentCount->whereIn('category_id', $userSettings['appointmentCategories'] ?? []);
 
+      // si el usuario tiene categorias asignadas entonces se filtra
+      if (!empty($professionalSettings['appointmentCategories']))
+        $appointmentCount->whereIn('category_id', $professionalSettings['appointmentCategories'] ?? []);
+
+      // donde las citas tengan estado 2 y 3, pre y convesation estatuses
       $appointmentCount = $appointmentCount->whereIn('status_id', [2, 3])->count(); //count the active appointments for the proffesional
 
-      $maxAppointments = $userSettings['maxAppointments'] ?? setting('iappointment::maxAppointments');
+      // obteniendo el maximo de citas posibles al mismo tiempo del profesional
+      $maxAppointments = $professionalSettings['maxAppointments'] ?? setting('iappointment::maxAppointments');
 
       \Log::info("Appointment count for {$professionalUser->present()->fullName} > $appointmentCount - $maxAppointments");
 
-      $result = Appointment::where('status_id', 1)->where('customer_id', '<>', $professionalUser->id)->get();
+      //obtiene citas con estado 1 (Pendiente) y no estén asignadas al profesional
+      $appointmentsToAssign = Appointment::where('status_id', 1)->where('customer_id', '<>', $professionalUser->id)->get();
 
-      foreach ($result as $item) {
+      foreach ($appointmentsToAssign as $appointmentToAssign) {
         //check if the user can be assigned to an appointment
-        if (isset($userSettings['appointmentCategories']) && !empty($userSettings['appointmentCategories'])) {
-          if (!in_array($item->category_id, $userSettings['appointmentCategories'])) {
+        if (isset($professionalSettings['appointmentCategories']) && !empty($professionalSettings['appointmentCategories'])) {
+          if (!in_array($appointmentToAssign->category_id, $professionalSettings['appointmentCategories'])) {
             $canBeAssigned = false;
             continue;
           }
-        } else if (isset($userPermissions['iappointment.categories.index-all'])) {
-          if (!$userPermissions['iappointment.categories.index-all']) {
-            $canBeAssigned = false;
-            continue;
-          }
-        } else {
-          $canBeAssigned = false;
-          continue;
         }
+
+        // si las citas asignadas al profesional no superan el maximo permitido
         if ($appointmentCount < $maxAppointments) {
           //search active proffesional shifts
           $shiftParams = [
@@ -170,19 +170,24 @@ class AppointmentService
               }
             }
           }
+
+          //finalmente si es posible asignar la cita
           if ($canBeAssigned) {
             //assign the professional
-            $customerUser = $item->customer;
-            $prevAssignedTo = $item->assignedTo;
-            $appointmentConversation = Conversation::where('entity_type', Appointment::class)
-              ->where('entity_id', $item->id)->first();
+            $customerUser = $appointmentToAssign->customer;
+            $prevAssignedTo = $appointmentToAssign->assignedTo;
 
-            $statusHistory = $item->statusHistory->where("status_id",3)->first();
+            // se busca el historial de appointment en caso de que ya haya pasado a conversation
+            $statusHistory = $appointmentToAssign->statusHistory->where("status_id",3)->first();
 
-            $this->appointment->updateBy($item->id, [
+
+            $this->appointment->updateBy($appointmentToAssign->id, [
               'assigned_to' => $professionalUser->id,
               'status_id' => isset($statusHistory->id) ? 3 : 2,
             ]); //assign the new proffesional
+
+            // se busca la conversacion perteneciente a la cita en caso de que ya exista
+            $appointmentConversation = $appointmentToAssign->conversation;
 
             //check if appointment has a chat conversation, else, create a new conversation
             if (!isset($appointmentConversation->id)) {
@@ -193,64 +198,63 @@ class AppointmentService
                   $customerUser->id,
                 ],
                 'entity_type' => Appointment::class,
-                'entity_id' => $item->id,
+                'entity_id' => $appointmentToAssign->id,
               ];
               //create the conversation
-              $this->conversationService->create($conversationData);
-              $appointmentConversation = Conversation::where('entity_type', Appointment::class)
-                ->where('entity_id', $item->id)->first();
+              $appointmentConversation = $this->conversationService->create($conversationData);
+
             }
-            //assign chat to proffesional and customer if proffesional is changed
-            if ($prevAssignedTo && $prevAssignedTo->id != $professionalUser->id) {
+
+            //assign chat to professional and customer if professional is changed
+            if (isset($prevAssignedTo->id) && $prevAssignedTo->id != $professionalUser->id) {
               $appointmentConversation->users()->sync([
                 $customerUser->id,
                 $professionalUser->id,
               ]);
             }
-          }
-          \Log::info("Appointment #{$item->id} assigned to user {$professionalUser->present()->fullName}");
-          if ($customerUser) {
-            $this->notificationService = app("Modules\Notification\Services\Inotification");
-            \Log::info("Enviando notificacion al user $customerUser->id, email: $customerUser->email");
-            //send email and notification to customer
-            $this->notificationService->to([
-              "email" => [$customerUser->email],
-              "broadcast" => [$customerUser->id],
-            ])->push(
-              [
-                "title" => trans("iappointment::appointments.messages.newAppointment"),
-                "message" => trans("iappointment::appointments.messages.newAppointmentWithAssignedContent", ['name' => $customerUser->present()->fullName, 'detail' => $item->category->title, 'assignedName' => $professionalUser->present()->fullName]),
-                "icon_class" => "fas fa-list-alt",
-                "buttonText" => trans("iappointment::appointments.button.take"),
-                "withButton" => true,
-                "link" => url('/ipanel/#/appointments/customer/' . $item->id),
-                "setting" => [
-                  "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
-                ],
-                "mode" => "modal",
-                "actions" => [
 
-                  [
-                    "label" => "Continuar",
-                    "color" => "warning"
+            \Log::info("Appointment #{$appointmentToAssign->id} assigned to user {$professionalUser->present()->fullName}");
+
+              $this->notificationService = app("Modules\Notification\Services\Inotification");
+              \Log::info("Enviando notificacion al user $customerUser->id, email: $customerUser->email");
+              //send email and notification to customer
+              $this->notificationService->to([
+                "email" => [$customerUser->email],
+                "broadcast" => [$customerUser->id],
+              ])->push(
+                [
+                  "title" => trans("iappointment::appointments.messages.newAppointment"),
+                  "message" => trans("iappointment::appointments.messages.newAppointmentWithAssignedContent", ['name' => $customerUser->present()->fullName, 'detail' => $appointmentToAssign->category->title, 'assignedName' => $professionalUser->present()->fullName]),
+                  "icon_class" => "fas fa-list-alt",
+                  "buttonText" => trans("iappointment::appointments.button.take"),
+                  "withButton" => true,
+                  "link" => url('/ipanel/#/appointments/customer/' . $appointmentToAssign->id),
+                  "setting" => [
+                    "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
                   ],
-                  [
-                    "label" => trans("iappointment::appointments.button.take"),
-                    "toVueRoute" => [
-                      "name" => "qappointment.panel.appointments.index",
-                      "params" => [
-                        "id" => $item->id
+                  "mode" => "modal",
+                  "actions" => [
+
+                    [
+                      "label" => "Continuar",
+                      "color" => "warning"
+                    ],
+                    [
+                      "label" => trans("iappointment::appointments.button.take"),
+                      "toVueRoute" => [
+                        "name" => "qappointment.panel.appointments.index",
+                        "params" => [
+                          "id" => $appointmentToAssign->id
+                        ]
                       ]
                     ]
                   ]
                 ]
-              ]
-            );
-          } else {
-            \Log::info("User {$professionalUser->present()->fullName} can't be assigned yet");
-          }
-          break;
-        } else {
+              );
+
+          }// end if $canBeAssigned
+        }//end if $appointmentCount < $maxAppointments
+        else {
           \Log::info("User {$professionalUser->present()->fullName} is out of appointments");
           $canBeAssigned = false;
         }
@@ -263,20 +267,21 @@ class AppointmentService
           ])->push(
             [
               "title" => trans("iappointment::appointments.messages.appointmentNotAssigned"),
-              "message" => trans("iappointment::appointments.messages.appointmentNotAssignedContent", ['detail' => $item->category->title]),
+              "message" => trans("iappointment::appointments.messages.appointmentNotAssignedContent", ['detail' => $appointmentToAssign->category->title]),
               "icon_class" => "fas fa-list-alt",
               "buttonText" => trans("iappointment::appointments.button.take"),
               "withButton" => true,
-              "link" => url('/ipanel/#/appointments/customer' . $item->id),
+              "link" => url('/ipanel/#/appointments/customer' . $appointmentToAssign->id),
               "setting" => [
                 "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
               ],
             ]
           );
-        }
-      }
+        } // end if !!$canBeAssigned
+      } // end foreach appointments
+    } // end foreach professionals
 
 
-    }
+    if(isset($appointment->id)) return $appointment;
   }
 }

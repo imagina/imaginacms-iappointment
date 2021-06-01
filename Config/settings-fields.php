@@ -66,4 +66,14 @@ return [
             'min' => '1',
         ],
     ],
+    'appointmentDayLimit' => [
+        'name' => 'iappointment::appointmentDayLimit',
+        'value' => null,
+        'type' => 'input',
+        'props' => [
+            'label' => 'iappointment::settings.appointmentDayLimit',
+            'type' => 'number',
+            'min' => '1'
+        ],
+    ],
 ];
