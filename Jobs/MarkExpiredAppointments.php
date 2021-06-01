@@ -28,7 +28,7 @@ class MarkExpiredAppointments implements ShouldQueue
         \DB::beginTransaction();
         try{
             $now = Carbon::now();
-            $appointmentDayLimit = setting('iappointment::appointmentDayLimit', 3); //get inactive appointment days
+            $appointmentDayLimit = setting('iappointment::appointmentDayLimit', null, '3'); //get inactive appointment days
             $dateLimit = $now->subDays($appointmentDayLimit);
             $inactiveAppointments = Appointment::where('status_id', 4)->whereHas('statusHistory',function($query) use($dateLimit){
                 $query->whereDate('created_at','<=', $dateLimit)
