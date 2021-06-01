@@ -3,6 +3,7 @@ namespace Modules\Iappointment\Events\Handlers;
 
 use Modules\Iappointment\Services\AppointmentService;
 use Modules\Ichat\Services\ConversationService;
+use Modules\Notification\Services\Inotification;
 
 class AppointmentStatusHandler
 {
@@ -11,11 +12,11 @@ class AppointmentStatusHandler
     private $inotification;
 
 
-    public function __construct(AppointmentService $appointmentService, ConversationService $conversationService)
+    public function __construct(AppointmentService $appointmentService, ConversationService $conversationService, Inotification $inotification)
     {
         $this->appointmentService = $appointmentService;
         $this->conversationService = $conversationService;
-        $this->inotification = app('Modules\Notification\Services\Inotification');
+        $this->inotification = $inotification;
     }
 
     public function handle($event)
@@ -32,7 +33,7 @@ class AppointmentStatusHandler
           switch($data["status_id"]){
 
             case 1: //Pending
-              $this->appointmentService->assign($appointment->category_id);
+              $this->appointmentService->assign($appointment->category_id,null, $appointment->customer_id, $appointment->id);
               break;
 
             case 2: // In Progress Pre
@@ -47,7 +48,7 @@ class AppointmentStatusHandler
                 "frontEvent" => [
                   "name" => "iappointment.appoinment.was.changed",
                 ],
-                "setting" => ["saveInDatabase" => 0]
+                "setting" => ["saveInDatabase" => 1]
               ]);
 
               break;
@@ -69,7 +70,7 @@ class AppointmentStatusHandler
                   "name" => "iappointment.appoinment.was.changed",
                 ],
                 "link" => url('/ipanel/#/appointments/customer' . $appointment->id),
-                "setting" => ["saveInDatabase" => 0]
+                "setting" => ["saveInDatabase" => 1]
               ]);
 
               break;
@@ -92,7 +93,7 @@ class AppointmentStatusHandler
                 "frontEvent" => [
                   "name" => "iappointment.appoinment.was.changed",
                 ],
-                "setting" => ["saveInDatabase" => 0]
+                "setting" => ["saveInDatabase" => 1]
               ]);
 
               break;
