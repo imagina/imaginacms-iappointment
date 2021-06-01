@@ -28,7 +28,7 @@ class AppointmentService
     $this->conversationService = app("Modules\Ichat\Services\ConversationService");
   }
 
-  function assign($categoryId = null, $subscription = false, $customerId = null)
+  function assign($categoryId = null, $subscription = false, $customerId = null, $appointmentId = null)
   {
 
     $customerUser =  $this->userRepository->getItem($subscription->entity_id ?? $customerId ?? null, json_decode(json_encode(['filter' => []])));
@@ -37,15 +37,16 @@ class AppointmentService
       'include' => [],
       'filter' => [],
     ];
+    
+    //if exist appointmentId
+    if(!empty($appointmentId)){
+      $appointment = $this->appointment->getItem($appointmentId); //get appointment model
+    }
 
     $category = $this->category->getItem($categoryId, json_decode(json_encode($categoryParams)));
 
     if (isset($customerUser->id)) {
       \Log::info("Creating new Appointment");
-      $appointmentExist = Appointment::where('customer_id', $customerUser->id)
-        ->where('category_id', $categoryId)
-        ->whereIn('status_id', [1,2,3])->count(); //count if the customer has active appointments
-      if ($appointmentExist == 0) {
         //create new appointment in case of non-active appointments for the customer
         $appointmentData = [
           'description' => $category->title,
@@ -54,7 +55,7 @@ class AppointmentService
           'category_id' => $category->id,
         ];
         $appointment = $this->appointment->create($appointmentData); //create an appointment
-
+     
         $this->notificationService = app("Modules\Notification\Services\Inotification");
         //send notification to customer from new appointment
         $this->notificationService->to([
@@ -91,7 +92,7 @@ class AppointmentService
             ]
           ]
         );
-      }
+   
     }
 
     $roleToAssigned = setting('iappointment::roleToAssigned'); //get the proffesional role assigned in settings
@@ -178,7 +179,7 @@ class AppointmentService
   
             // se busca el historial de appointment en caso de que ya haya pasado a conversation
             $statusHistory = $appointmentToAssign->statusHistory->where("status_id",3)->first();
-
+            
             
             $this->appointment->updateBy($appointmentToAssign->id, [
               'assigned_to' => $professionalUser->id,
@@ -201,11 +202,10 @@ class AppointmentService
                 'entity_id' => $appointmentToAssign->id,
               ];
               //create the conversation
-              $this->conversationService->create($conversationData);
-              $appointmentConversation = Conversation::where('entity_type', Appointment::class)
-                ->where('entity_id', $appointmentToAssign->id)->first();
+              $appointmentConversation = $this->conversationService->create($conversationData);
+              
             }
-            
+
             //assign chat to professional and customer if professional is changed
             if (isset($prevAssignedTo->id) && $prevAssignedTo->id != $professionalUser->id) {
               $appointmentConversation->users()->sync([
@@ -215,7 +215,7 @@ class AppointmentService
             }
   
             \Log::info("Appointment #{$appointmentToAssign->id} assigned to user {$professionalUser->present()->fullName}");
-            if ($customerUser) {
+
               $this->notificationService = app("Modules\Notification\Services\Inotification");
               \Log::info("Enviando notificacion al user $customerUser->id, email: $customerUser->email");
               //send email and notification to customer
@@ -252,9 +252,7 @@ class AppointmentService
                   ]
                 ]
               );
-            } else {
-              \Log::info("User {$professionalUser->present()->fullName} can't be assigned yet");
-            }
+           
           }// end if $canBeAssigned
         }//end if $appointmentCount < $maxAppointments
         else {

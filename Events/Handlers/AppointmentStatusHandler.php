@@ -33,7 +33,7 @@ class AppointmentStatusHandler
           switch($data["status_id"]){
 
             case 1: //Pending
-              $this->appointmentService->assign($appointment->category_id,null, $appointment->customer_id);
+              $this->appointmentService->assign($appointment->category_id,null, $appointment->customer_id, $appointment->id);
               break;
 
             case 2: // In Progress Pre

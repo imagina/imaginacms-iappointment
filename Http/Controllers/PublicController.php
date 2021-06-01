@@ -68,6 +68,8 @@ class PublicController extends BaseApiController
     }
 
     public function showCategory($criteria, Request $request){
+      \DB::beginTransaction();
+      try {
         if(!auth()->check()){
             return redirect("/ipanel/#/auth/login"."?redirectTo=".$request->url());
         }
@@ -77,13 +79,22 @@ class PublicController extends BaseApiController
         request()->session()->put('category_id',$criteria);
 
         $subscription = $this->subscriptionService->validate(new Appointment());
-
+      
         $locale = \LaravelLocalization::setLocale() ?: \App::getLocale();
 
-        if($subscription){
+        if(isset($subscription->id)){
             $appointment = $this->appointmentService->assign($criteria,$subscription);
+          \DB::commit(); //Commit to Data Base
             return redirect("/ipanel/#/appointments/customer/{$appointment->id}");
         }
+      } catch (\Exception $e) {
+        \DB::rollback();//Rollback to Data Base
+        $status = $this->getStatusError($e->getCode());
+        $response = ["errors" => $e->getMessage(),"status" => $status];
+        Log::error($response);
+      }
+      
+      \DB::commit(); //Commit to Data Base
         return redirect()->route($locale . '.iplan.plan.index');
     }
 
