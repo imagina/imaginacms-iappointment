@@ -30,15 +30,15 @@ class MarkExpiredAppointments implements ShouldQueue
             $now = Carbon::now();
             $appointmentDayLimit = setting('iappointment::appointmentDayLimit', null, '3'); //get inactive appointment days
             $dateLimit = $now->subDays($appointmentDayLimit);
-            $inactiveAppointments = Appointment::where('status_id', 4)->whereHas('statusHistory',function($query) use($dateLimit){
+            $inactiveAppointments = Appointment::whereIn('status_id', [1, 4])->whereHas('statusHistory',function($query) use($dateLimit){
                 $query->whereDate('created_at','<=', $dateLimit)
-                    ->where('status_id', 4);
+                    ->whereIn('status_id', [1, 4]);
             })->pluck('id')->toArray(); //get inactive appointments
             if($inactiveAppointments){
                 \Log::info($inactiveAppointments);
-                Appointment::where('status_id', 4)->whereHas('statusHistory',function($query) use($dateLimit){
+                Appointment::whereIn('status_id', [1, 4])->whereHas('statusHistory',function($query) use($dateLimit){
                     $query->whereDate('created_at','<=', $dateLimit)
-                        ->where('status_id', 4);
+                        ->whereIn('status_id', [1, 4]);
                 })->update(['status_id',5]);
                 $expiredStatus = AppointmentStatus::where('id',5)->first();
                 $expiredStatus->appointments()->attach($inactiveAppointments);
