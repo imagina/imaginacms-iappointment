@@ -10,10 +10,6 @@ Route::group(['prefix' => LaravelLocalization::setLocale(),
         'as' => $locale . '.appointment.category.index',
         'uses' => 'PublicController@indexCategory',
     ]);
-    $router->get(trans('iappointment::routes.appointmentCategory.show').'/{criteria}', [
-        'as' => $locale . '.appointment.category.showParent',
-        'uses' => 'PublicController@showParentCategory',
-    ]);
     $router->get(trans('iappointment::routes.appointmentCategory.index') . '/{criteria}', [
         'as' => $locale . '.appointment.category.show',
         'uses' => 'PublicController@showCategory',

@@ -7,4 +7,5 @@ return [
     'enableShifts' => 'Enable User Shifts',
     'appointmentCategories' => 'Appointment Categories',
     'categoryIndexTitle' => 'Category Index Title',
+    'appointmentDayLimit' => 'Days limit for inactive appointments',
 ];

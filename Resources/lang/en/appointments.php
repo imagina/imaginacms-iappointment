@@ -9,7 +9,7 @@ return [
         'appointments' => 'Appointment',
         'create appointment' => 'Create a appointment',
         'edit appointment' => 'Edit a appointment',
-        'appointmentAbandoned' => "Your appointment was marked as <b>Abandoned</b>"
+        'appointmentAbandoned' => "Your appointment was marked as Abandoned"
     ],
     'button' => [
         'create appointment' => 'Create a appointment',

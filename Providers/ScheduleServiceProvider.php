@@ -17,6 +17,11 @@ class ScheduleServiceProvider extends ServiceProvider
                 \Modules\Iappointment\Jobs\AssignAppointment::dispatch();
             })
                 ->everyMinute();
+
+            $schedule->call(function () {
+                \Modules\Iappointment\Jobs\MarkExpiredAppointments::dispatch();
+            })
+                ->everyMinute();
                 //->dailyAt('20:00');
 
         });

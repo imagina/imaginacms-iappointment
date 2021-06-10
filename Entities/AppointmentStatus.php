@@ -27,4 +27,8 @@ class AppointmentStatus extends Model
     {
         return $this->hasMany(AppointmentStatus::class, 'parent_id');
     }
+
+    public function appointments(){
+        return $this->belongsToMany(Appointment::class, AppointmentStatusHistory::class, 'status_id', 'appointment_id');
+    }
 }

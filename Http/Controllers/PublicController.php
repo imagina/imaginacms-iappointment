@@ -40,33 +40,6 @@ class PublicController extends BaseApiController
 
     }
 
-    public function showParentCategory($criteria, Request $request){
-        $tpl = 'iappointment::frontend.category.index';
-        $ttpl = 'iappointment.category.index';
-
-        if (view()->exists($ttpl)) $tpl = $ttpl;
-
-        $params = $this->getParamsRequest($request);
-
-        $params->filter = new \stdClass();
-
-        $params->filter->field = 'slug';
-
-        $category = $this->category->getItem($criteria, $params);
-
-        unset($params->filter->field);
-
-        $params->filter->parent = $category->id;
-
-        $categories = $this->category->getItemsBy($params);
-
-        if(!$category)
-            return abort(404);
-
-        return view($tpl, compact('category','categories'));
-
-    }
-
     public function showCategory($criteria, Request $request){
       \DB::beginTransaction();
       try {
@@ -79,7 +52,7 @@ class PublicController extends BaseApiController
         request()->session()->put('category_id',$criteria);
 
         $subscription = $this->subscriptionService->validate(new Appointment());
-      
+
         $locale = \LaravelLocalization::setLocale() ?: \App::getLocale();
 
         if(isset($subscription->id)){
@@ -93,7 +66,7 @@ class PublicController extends BaseApiController
         $response = ["errors" => $e->getMessage(),"status" => $status];
         Log::error($response);
       }
-      
+
       \DB::commit(); //Commit to Data Base
         return redirect()->route($locale . '.iplan.plan.index');
     }

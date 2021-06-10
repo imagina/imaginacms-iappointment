@@ -9,7 +9,7 @@ return [
         'appointments' => 'Appointment',
         'create appointment' => 'Create a appointment',
         'edit appointment' => 'Edit a appointment',
-        'appointmentAbandoned' => "Tu cita fue marcada como <b>Abandonada</b>"
+        'appointmentAbandoned' => "Tu cita fue marcada como Abandonada"
     ],
     'button' => [
         'create appointment' => 'Create a appointment',

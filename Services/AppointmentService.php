@@ -182,11 +182,10 @@ class AppointmentService
               'assigned_to' => $professionalUser->id,
               'status_id' => isset($statusHistory->id) ? 3 : (isset($appointmentCategory->form->id) ? 2 : 3),
             ]); //assign the new professional
-            
+
             // se busca la conversacion perteneciente a la cita en caso de que ya exista
-            $appointmentConversation = Conversation::where('entity_type', Appointment::class)
-              ->where('entity_id', $appointmentToAssign->id)->first();
-            
+            $appointmentConversation = $appointmentToAssign->conversation;
+
             //check if appointment has a chat conversation, else, create a new conversation
             if (!isset($appointmentConversation->id)) {
               //if the appointment has not a conversation, then create
@@ -246,7 +245,7 @@ class AppointmentService
                   ]
                 ]
               );
-           
+
           }// end if $canBeAssigned
         }//end if $appointmentCount < $maxAppointments
         else {
@@ -275,8 +274,8 @@ class AppointmentService
         } // end if !!$canBeAssigned
       } // end foreach appointments
     } // end foreach professionals
-    
-    
+
+
     if(isset($appointment->id)) return $appointment;
   }
 }
