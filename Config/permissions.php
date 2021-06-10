@@ -9,6 +9,7 @@ return [
         'index-all' => 'iappointment::appointments.list resource',
         'create' => 'iappointment::appointments.create resource',
         'edit' => 'iappointment::appointments.edit resource',
+        'edit-all' => 'iappointment::appointments.edit-all resource',
         'destroy' => 'iappointment::appointments.destroy resource',
     ],
     'iappointment.categories' => [

@@ -73,26 +73,21 @@ class AppointmentService
             "setting" => [
               "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
             ],
-            "mode" => "modal",
-            "actions" => [
-
-              [
-                "label" => "Continuar",
-                "color" => "warning"
-              ],
-              [
-                "label" => trans("iappointment::appointments.button.take"),
-                "toVueRoute" => [
-                  "name" => "qappointment.panel.appointments.index",
-                  "params" => [
-                    "id" => $appointment->id
-                  ]
-                ],
+            "options" => [
+              "isImportant" => true,
+              "action" => [
+                [
+                  "toVueRoute" => [
+                    "name" => "qappointment.panel.appointments.index",
+                    "params" => [
+                      "id" => $appointment->id
+                    ]
+                  ],
+                ]
               ]
             ]
           ]
         );
-   
     }
 
     $roleToAssigned = setting('iappointment::roleToAssigned'); //get the proffesional role assigned in settings
@@ -180,11 +175,13 @@ class AppointmentService
             // se busca el historial de appointment en caso de que ya haya pasado a conversation
             $statusHistory = $appointmentToAssign->statusHistory->where("status_id",3)->first();
             
+            // appointment Category
+            $appointmentCategory = $appointmentToAssign->category;
             
             $this->appointment->updateBy($appointmentToAssign->id, [
               'assigned_to' => $professionalUser->id,
-              'status_id' => isset($statusHistory->id) ? 3 : 2,
-            ]); //assign the new proffesional
+              'status_id' => isset($statusHistory->id) ? 3 : (isset($appointmentCategory->form->id) ? 2 : 3),
+            ]); //assign the new professional
             
             // se busca la conversacion perteneciente a la cita en caso de que ya exista
             $appointmentConversation = Conversation::where('entity_type', Appointment::class)
@@ -233,19 +230,16 @@ class AppointmentService
                   "setting" => [
                     "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
                   ],
-                  "mode" => "modal",
-                  "actions" => [
-          
-                    [
-                      "label" => "Continuar",
-                      "color" => "warning"
-                    ],
-                    [
-                      "label" => trans("iappointment::appointments.button.take"),
-                      "toVueRoute" => [
-                        "name" => "qappointment.panel.appointments.index",
-                        "params" => [
-                          "id" => $appointmentToAssign->id
+                  "options" => [
+                    "mode" => "modal",
+                    "action" => [
+                      [
+                        "label" => trans("iappointment::appointments.button.take"),
+                        "toVueRoute" => [
+                          "name" => "qappointment.panel.appointments.index",
+                          "params" => [
+                            "id" => $appointmentToAssign->id
+                          ]
                         ]
                       ]
                     ]

@@ -46,20 +46,16 @@ class NewAppointmentFromNewSubscription
                             "setting" => [
                                 "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
                             ],
-                            "mode" => "modal",
-                            "actions" => [
-
-                                [
-                                    "label" => "Continuar",
-                                    "color" => "warning"
-                                ],
-                                [
-                                    "label" => trans("iappointment::appointments.button.take"),
-                                    "toVueRoute" => [
-                                        "name" => "qappointment.panel.appointments.index"
-                                    ]
+                          "options" => [
+                            "isImportant" => true,
+                            "action" => [
+                              [
+                                "toVueRoute" => [
+                                  "name" => "qappointment.panel.appointments.index"
                                 ]
+                              ]
                             ]
+                          ]
                         ]
                     );
                 }

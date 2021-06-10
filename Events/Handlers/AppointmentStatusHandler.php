@@ -45,6 +45,7 @@ class AppointmentStatusHandler
                 "title" => "Appointment was completed",
                 "message" => "Appointment was completed!",
                 "link" => url(''),
+                "isAction" => true,
                 "frontEvent" => [
                   "name" => "iappointment.appoinment.was.changed",
                 ],
@@ -66,6 +67,7 @@ class AppointmentStatusHandler
                 "message" => trans("iappointment::appointments.messages.appointmentAbandoned",['name'=>$appointment->customer->present()->fullName]),
                 "buttonText" => trans("iappointment::appointments.button.retake"),
                 "withButton" => true,
+                "isAction" => true,
                 "frontEvent" => [
                   "name" => "iappointment.appoinment.was.changed",
                 ],
@@ -90,6 +92,7 @@ class AppointmentStatusHandler
                 "title" => "Appointment was completed",
                 "message" => "Appointment was completed!",
                 "link" => url(''),
+                "isAction" => true,
                 "frontEvent" => [
                   "name" => "iappointment.appoinment.was.changed",
                 ],
