@@ -76,4 +76,19 @@ return [
             'min' => '1'
         ],
     ],
+  
+  'errorFormRelated' => [
+    'name' => 'iappointment::errorFormRelated',
+    'value' => null,
+    'type' => 'select',
+    'columns' => 'col-12 col-md-6',
+    'loadOptions' => [
+      'apiRoute' => 'apiRoutes.qform.forms',
+      'select' => ['label' => 'title', 'id' => 'id'],
+    ],
+    'props' => [
+      'label' => 'Formulario para reportar Error',
+      'clearable' => true,
+    ],
+  ],
 ];

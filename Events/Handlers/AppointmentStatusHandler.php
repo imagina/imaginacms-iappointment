@@ -40,7 +40,22 @@ class AppointmentStatusHandler
               break;
 
             case 3: //In Progress Conversation
-
+  
+              $this->inotification->to([
+                'broadcast' => [$appointment->assigned_to],
+                'email' => [$appointment->assigned->email]
+              ])->push([
+                "title" => trans("iappointment::appointments.messages.newAppointment"),
+                "message" => trans("iappointment::appointments.messages.newAppointment"),
+                "link" => url('/ipanel/#/appointments/assigned/index'),
+                "buttonText" => trans("iappointment::appointments.button.take"),
+                "withButton" => true,
+                "options" => [
+                  "isImportant" => true
+                ],
+                "setting" => ["saveInDatabase" => 1]
+              ]);
+              $this->inotification = app("Modules\Notification\Services\Inotification");
               $this->inotification->to(['broadcast' => [$appointment->assigned_to]])->push([
                 "title" => "Appointment was completed",
                 "message" => "Appointment was completed!",
