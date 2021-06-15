@@ -39,7 +39,7 @@ class MarkExpiredAppointments implements ShouldQueue
                 Appointment::whereIn('status_id', [1, 4])->whereHas('statusHistory',function($query) use($dateLimit){
                     $query->whereDate('created_at','<=', $dateLimit)
                         ->whereIn('status_id', [1, 4]);
-                })->update(['status_id',5]);
+                })->update(['status_id' => 5]);
                 $expiredStatus = AppointmentStatus::where('id',5)->first();
                 $expiredStatus->appointments()->attach($inactiveAppointments);
             }
