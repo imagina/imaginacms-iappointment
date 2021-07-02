@@ -43,13 +43,14 @@ class PublicController extends BaseApiController
     public function showCategory($criteria, Request $request){
       \DB::beginTransaction();
       try {
+
+        request()->session()->put('category_id',$criteria);
+
         if(!auth()->check()){
             return redirect("/ipanel/#/auth/login"."?redirectTo=".$request->url());
         }
         $params = $this->getParamsRequest($request);
         $category = $this->category->getItem($criteria, $params);
-
-        request()->session()->put('category_id',$criteria);
 
         $subscription = $this->subscriptionService->validate(new Appointment());
 

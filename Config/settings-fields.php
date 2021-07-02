@@ -20,7 +20,8 @@ return [
         'type' => 'select',
         'props' => [
             'label' => 'iappointment::settings.roleAsAssigned',
-            'useChips' => true
+            'useChips' => true,
+            'multiple' => true,
         ],
         'loadOptions' => [
             'apiRoute' => 'apiRoutes.quser.roles',
@@ -76,7 +77,7 @@ return [
             'min' => '1'
         ],
     ],
-  
+
   'errorFormRelated' => [
     'name' => 'iappointment::errorFormRelated',
     'value' => null,
