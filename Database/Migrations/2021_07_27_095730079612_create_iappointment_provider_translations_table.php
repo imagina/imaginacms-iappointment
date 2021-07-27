@@ -16,6 +16,8 @@ class CreateIappointmentProviderTranslationsTable extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');
             // Your translatable fields
+            $table->string('title');
+            $table->text('description');
 
             $table->integer('provider_id')->unsigned();
             $table->string('locale')->index();

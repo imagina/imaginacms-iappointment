@@ -16,6 +16,11 @@ class CreateIappointmentProvidersTable extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');
             // Your fields
+
+            $table->string('name');
+            $table->integer('status')->unsigned();
+            $table->text('options');
+
             $table->timestamps();
         });
     }
