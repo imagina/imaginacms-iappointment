@@ -88,7 +88,17 @@ class RegisterIappointmentSidebar implements \Maatwebsite\Sidebar\SidebarExtende
                         $this->auth->hasAccess('iappointment.categoryforms.index')
                     );
                 });
+                $item->item(trans('iappointment::providers.title.providers'), function (Item $item) {
+                    $item->icon('fa fa-copy');
+                    $item->weight(0);
+                    $item->append('admin.iappointment.provider.create');
+                    $item->route('admin.iappointment.provider.index');
+                    $item->authorize(
+                        $this->auth->hasAccess('iappointment.providers.index')
+                    );
+                });
 // append
+
 
 
 

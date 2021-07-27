@@ -36,7 +36,9 @@ class IappointmentServiceProvider extends ServiceProvider
             $event->load('appointmentfields', Arr::dot(trans('iappointment::appointmentfields')));
             $event->load('appointmentstatuses', Arr::dot(trans('iappointment::appointmentstatuses')));
             $event->load('categoryforms', Arr::dot(trans('iappointment::categoryforms')));
+            $event->load('providers', Arr::dot(trans('iappointment::providers')));
             // append translations
+
 
 
 
@@ -108,7 +110,20 @@ class IappointmentServiceProvider extends ServiceProvider
                 return new \Modules\Iappointment\Repositories\Cache\CacheAppointmentStatusDecorator($repository);
             }
         );
+        $this->app->bind(
+            'Modules\Iappointment\Repositories\ProviderRepository',
+            function () {
+                $repository = new \Modules\Iappointment\Repositories\Eloquent\EloquentProviderRepository(new \Modules\Iappointment\Entities\Provider());
+
+                if (! config('app.cache')) {
+                    return $repository;
+                }
+
+                return new \Modules\Iappointment\Repositories\Cache\CacheProviderDecorator($repository);
+            }
+        );
 // add bindings
+
 
         $this->app->bind(
             'Modules\Iappointment\Repositories\AppointmentStatusHistoryRepository',

@@ -169,7 +169,41 @@ $router->group(['prefix' =>'/iappointment'], function (Router $router) {
         'uses' => 'CategoryFormController@destroy',
         'middleware' => 'can:iappointment.categoryforms.destroy'
     ]);
+    $router->bind('provider', function ($id) {
+        return app('Modules\Iappointment\Repositories\ProviderRepository')->find($id);
+    });
+    $router->get('providers', [
+        'as' => 'admin.iappointment.provider.index',
+        'uses' => 'ProviderController@index',
+        'middleware' => 'can:iappointment.providers.index'
+    ]);
+    $router->get('providers/create', [
+        'as' => 'admin.iappointment.provider.create',
+        'uses' => 'ProviderController@create',
+        'middleware' => 'can:iappointment.providers.create'
+    ]);
+    $router->post('providers', [
+        'as' => 'admin.iappointment.provider.store',
+        'uses' => 'ProviderController@store',
+        'middleware' => 'can:iappointment.providers.create'
+    ]);
+    $router->get('providers/{provider}/edit', [
+        'as' => 'admin.iappointment.provider.edit',
+        'uses' => 'ProviderController@edit',
+        'middleware' => 'can:iappointment.providers.edit'
+    ]);
+    $router->put('providers/{provider}', [
+        'as' => 'admin.iappointment.provider.update',
+        'uses' => 'ProviderController@update',
+        'middleware' => 'can:iappointment.providers.edit'
+    ]);
+    $router->delete('providers/{provider}', [
+        'as' => 'admin.iappointment.provider.destroy',
+        'uses' => 'ProviderController@destroy',
+        'middleware' => 'can:iappointment.providers.destroy'
+    ]);
 // append
+
 
 
 
