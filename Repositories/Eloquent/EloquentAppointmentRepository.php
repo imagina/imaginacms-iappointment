@@ -33,6 +33,12 @@ class EloquentAppointmentRepository extends EloquentBaseRepository implements Ap
       $includeDefault = ['translations'];//Default relationships
       if (isset($params->include))//merge relations with default relationships
         $includeDefault = array_merge($includeDefault, $params->include ?? []);
+      
+      if(!is_module_enabled("Ichat")){
+        $key = array_search("conversation", $includeDefault);
+        unset($includeDefault[$key]);
+      }
+      
       $query->with($includeDefault);//Add Relationships to query
     }
     
