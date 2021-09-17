@@ -3,6 +3,7 @@
 namespace Modules\Iappointment\Transformers;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Modules\Ichat\Transformers\ConversationTransformer;
 use Modules\Iprofile\Transformers\UserTransformer;
 
 class AppointmentTransformer extends JsonResource
@@ -28,7 +29,7 @@ class AppointmentTransformer extends JsonResource
         ];
         
         if(is_module_enabled("Ichat")){
-          $data["conversation"] = new Modules\Ichat\Transformers\ConversationTransformer($this->whenLoaded('conversation'));
+          $data["conversation"] = new ConversationTransformer($this->whenLoaded('conversation'));
         }
 
         $filter = json_decode($request->filter);

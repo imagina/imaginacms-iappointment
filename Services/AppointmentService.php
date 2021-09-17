@@ -74,7 +74,7 @@ class AppointmentService
               "saveInDatabase" => 1 // now, the notifications with type broadcast need to be save in database to really send the notification
             ],
             "options" => [
-              "isImportant" => true,
+              //"isImportant" => true,
               "action" => [
                 [
                   "toVueRoute" => [
