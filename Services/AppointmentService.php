@@ -88,6 +88,9 @@ class AppointmentService
             ]
           ]
         );
+        
+        //disabling all importants notifications if the user already have any appointments assigned
+      \Modules\Notification\Entities\notification::where("recipient",$customerUser->id)->where("link","like","%/cita/categorias%")->update(["is_read"=>1]);
     }
 
     $roleToAssigned = json_decode(setting('iappointment::roleToAssigned',null,'0'),true); //get the proffesional role assigned in settings
