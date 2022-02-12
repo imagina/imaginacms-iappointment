@@ -4,12 +4,13 @@ namespace Modules\Iappointment\Entities;
 
 use Astrotomic\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Model;
+use Modules\Core\Icrud\Traits\hasEventsWithBindings;
 use Modules\Iforms\Support\Traits\Formeable;
 use Modules\Media\Support\Traits\MediaRelation;
 
 class Category extends Model
 {
-    use Translatable, MediaRelation, Formeable;
+    use Translatable, MediaRelation, Formeable, hasEventsWithBindings;
 
     protected $table = 'iappointment__categories';
     public $translatedAttributes = [
