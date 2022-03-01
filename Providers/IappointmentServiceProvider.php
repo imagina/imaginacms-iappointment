@@ -58,6 +58,7 @@ class IappointmentServiceProvider extends ServiceProvider
         $this->publishConfig('iappointment', 'settings-fields');
 
         $this->mergeConfigFrom($this->getModuleConfigFilePath('iappointment', 'cmsPages'), "asgard.iappointment.cmsPages");
+        $this->mergeConfigFrom($this->getModuleConfigFilePath('iappointment', 'cmsSidebar'), "asgard.iappointment.cmsSidebar");
 
         $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
 
