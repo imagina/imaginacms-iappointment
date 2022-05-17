@@ -141,11 +141,21 @@ class EloquentAppointmentLeadRepository extends EloquentBaseRepository implement
               $field->value = $value;
               $field->save();
             }else{
-              $model = $this->model->create([
-                "appointment_id" => $appointmentId,
-                "name" => $key,
-                "value" => $value,
-              ]);
+
+                $saveField = true;
+
+                // Fix bug with empty array
+                if(is_array($value) && count($value)===0)
+                    $saveField = false;
+
+                if($saveField){
+                    $model = $this->model->create([
+                        "appointment_id" => $appointmentId,
+                        "name" => $key,
+                        "value" => $value,
+                    ]);  
+                }
+                 
             }
           }
           
