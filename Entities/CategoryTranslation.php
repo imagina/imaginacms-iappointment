@@ -10,7 +10,8 @@ class CategoryTranslation extends Model
     protected $fillable = [
         'title',
         'slug',
-        'description'
+        'description',
+        'status'
     ];
     protected $table = 'iappointment__category_translations';
 }

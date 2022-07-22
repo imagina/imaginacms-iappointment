@@ -16,6 +16,7 @@ class Category extends Model
     public $translatedAttributes = [
         'title',
         'slug',
+        'status',
         'description'
     ];
     protected $fillable = [

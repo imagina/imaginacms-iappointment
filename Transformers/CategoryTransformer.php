@@ -12,6 +12,7 @@ class CategoryTransformer extends JsonResource
         $data = [
             'id' => $this->id,
             'title' => $this->title ?? '',
+            'status' => $this->status ? '1' : '0',
             'slug' => $this->slug ?? '',
             'description' => $this->description ?? '',
             'parentId' => (int)$this->parent_id,
@@ -39,6 +40,8 @@ class CategoryTransformer extends JsonResource
                     $this->translate("$lang")['description'] ?? '' : '';
                 $data[$lang]['slug'] = $this->hasTranslation($lang) ?
                     $this->translate("$lang")['slug'] : '';
+                $data[$lang]['status'] = $this->hasTranslation($lang) ?
+                  ($this->translate("$lang")['status'] ? '1' : '0') : '';
             }
         }
         return $data;
