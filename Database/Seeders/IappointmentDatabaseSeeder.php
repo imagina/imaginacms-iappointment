@@ -16,6 +16,7 @@ class IappointmentDatabaseSeeder extends Seeder
     {
         Model::unguard();
 
+        $this->call(IappointmentModuleTableSeeder::class);
         $this->call(AppointmentStatusTableSeeder::class);
     }
 }
