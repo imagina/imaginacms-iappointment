@@ -147,7 +147,7 @@ class AppointmentService
       // obteniendo el maximo de citas posibles al mismo tiempo del profesional
       $maxAppointments = $professionalSettings['maxAppointments'] ?? setting('iappointment::maxAppointments');
 
-      \Log::info("Appointment count for {$professionalUser->full_name} > $appointmentCount - $maxAppointments");
+      //\Log::info("Appointment count for {$professionalUser->full_name} > $appointmentCount - $maxAppointments");
 
       //obtiene citas con estado 1 (Pendiente) y no estén asignadas al profesional
       $appointmentsToAssign = Appointment::where('status_id', 1)->where('customer_id', '<>', $professionalUser->id)->get();
