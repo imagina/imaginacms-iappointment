@@ -25,6 +25,8 @@ class MarkExpiredAppointments implements ShouldQueue
     }
 
     public function handle(){
+
+        \Log::info("Iappointment: Jobs|MarkExpiredAppointments");
         \DB::beginTransaction();
         try{
             $now = Carbon::now();
@@ -47,6 +49,7 @@ class MarkExpiredAppointments implements ShouldQueue
             \DB::rollback();
             \Log::info('Error marking expired appointments '.$e->getMessage().' - '.$e->getFile().' Line '.$e->getLine());
         }
+       
     }
 
 }
