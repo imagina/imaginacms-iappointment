@@ -45,6 +45,7 @@ class MarkExpiredAppointments implements ShouldQueue
                 $expiredStatus = AppointmentStatus::where('id',5)->first();
                 $expiredStatus->appointments()->attach($inactiveAppointments);
             }
+            \DB::commit();
         }catch(\Exception $e){
             \DB::rollback();
             \Log::info('Error marking expired appointments '.$e->getMessage().' - '.$e->getFile().' Line '.$e->getLine());
