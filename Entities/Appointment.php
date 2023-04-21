@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Modules\Ichat\Entities\Conversation;
 use Modules\Media\Support\Traits\MediaRelation;
 
+use Modules\Core\Support\Traits\AuditTrait;
+
 class Appointment extends Model
 {
-    use Translatable, MediaRelation;
+    use Translatable, MediaRelation, AuditTrait;
 
     protected $table = 'iappointment__appointments';
     public $translatedAttributes = [

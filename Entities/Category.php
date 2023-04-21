@@ -8,9 +8,11 @@ use Modules\Core\Icrud\Traits\hasEventsWithBindings;
 use Modules\Iforms\Support\Traits\Formeable;
 use Modules\Media\Support\Traits\MediaRelation;
 
+use Modules\Core\Support\Traits\AuditTrait;
+
 class Category extends Model
 {
-    use Translatable, MediaRelation, Formeable, hasEventsWithBindings;
+    use Translatable, MediaRelation, Formeable, hasEventsWithBindings, AuditTrait;
 
     protected $table = 'iappointment__categories';
     public $translatedAttributes = [
