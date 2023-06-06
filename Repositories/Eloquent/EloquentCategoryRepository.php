@@ -23,7 +23,7 @@ class EloquentCategoryRepository extends EloquentBaseRepository implements Categ
   {
     /*== initialize query ==*/
     $query = $this->model->query();
-    
+
     /*== RELATIONSHIPS ==*/
     if (in_array('*', $params->include)) {//If Request all relationships
       $query->with(['translations']);
@@ -33,14 +33,14 @@ class EloquentCategoryRepository extends EloquentBaseRepository implements Categ
         $includeDefault = array_merge($includeDefault, $params->include);
       $query->with($includeDefault);//Add Relationships to query
     }
-    
+
     /*== FILTERS ==*/
     if (isset($params->filter)) {
       $filter = $params->filter;//Short filter
       if (isset($filter->parent)) {
         $query->where('parent_id', $filter->parent);
       }
-      
+
       if (isset($filter->search)) { //si hay que filtrar por rango de precio
         $criterion = $filter->search;
         $param = explode(' ', $criterion);
@@ -52,8 +52,8 @@ class EloquentCategoryRepository extends EloquentBaseRepository implements Categ
           });
         })->orWhere('id', 'like', '%' . $filter->search . '%');
       }
-      
-      
+
+
       //Filter by date
       if (isset($filter->date)) {
         $date = $filter->date;//Short filter date
@@ -63,7 +63,7 @@ class EloquentCategoryRepository extends EloquentBaseRepository implements Categ
         if (isset($date->to))//to a date
           $query->whereDate($date->field, '<=', $date->to);
       }
-      
+
       if (isset($filter->ids)) {
         is_array($filter->ids) ? true : $filter->ids = [$filter->ids];
         $query->whereIn('iappointment__categories.id', $filter->ids);
@@ -75,21 +75,21 @@ class EloquentCategoryRepository extends EloquentBaseRepository implements Categ
         $query->orderBy($orderByField, $orderWay);//Add order to query
       }
     }
-    
-    if (isset($params->setting) && isset($params->setting->fromAdmin) && $params->setting->fromAdmin) {
-    
-    } else {
-      
-      //pre-filter status
-        $query->whereRaw("iappointment__categories.id IN (SELECT category_id from iappointment__category_translations where status = 1)");
 
-      
+    if (isset($params->setting) && isset($params->setting->fromAdmin) && $params->setting->fromAdmin) {
+
+    } else {
+
+      //pre-filter status
+      $query->whereRaw("iappointment__categories.id IN (SELECT category_id from iappointment__category_translations where status = 1)");
+
+
     }
-    
+
     /*== FIELDS ==*/
     if (isset($params->fields) && count($params->fields))
       $query->select($params->fields);
-    
+
     /*== REQUEST ==*/
     if (isset($params->page) && $params->page) {
       return $query->paginate($params->take);
@@ -98,7 +98,7 @@ class EloquentCategoryRepository extends EloquentBaseRepository implements Categ
       return $query->get();
     }
   }
-  
+
   /**
    * Standard Api Method
    * @param $criteria
@@ -109,7 +109,7 @@ class EloquentCategoryRepository extends EloquentBaseRepository implements Categ
   {
     //Initialize query
     $query = $this->model->query();
-    
+
     /*== RELATIONSHIPS ==*/
     if (in_array('*', $params->include)) {//If Request all relationships
       $query->with(['translations']);
@@ -122,13 +122,13 @@ class EloquentCategoryRepository extends EloquentBaseRepository implements Categ
     /*== FILTER ==*/
     if (isset($params->filter)) {
       $filter = $params->filter;
-      
+
       if (isset($filter->field))//Filter by specific field
         $field = $filter->field;
-      
+
       // find translatable attributes
       $translatedAttributes = $this->model->translatedAttributes;
-      
+
       // filter by translatable attributes
       if (isset($field) && in_array($field, $translatedAttributes))//Filter by slug
         $query->whereHas('translations', function ($query) use ($criteria, $filter, $field) {
@@ -139,15 +139,19 @@ class EloquentCategoryRepository extends EloquentBaseRepository implements Categ
         // find by specific attribute or by id
         $query->where($field ?? 'id', $criteria);
     }
-    
+
     /*== FIELDS ==*/
     if (isset($params->fields) && count($params->fields))
       $query->select($params->fields);
-    
+
+    if (!isset($params->filter->field)) {
+      $query->where('id', $criteria);
+    }
+
     /*== REQUEST ==*/
     return $query->first();
   }
-  
+
   /**
    * Standard Api Method
    * @param $data
@@ -155,22 +159,22 @@ class EloquentCategoryRepository extends EloquentBaseRepository implements Categ
    */
   public function create($data)
   {
-    
+
     $model = $this->model->create($data);
-    
+
     if ($data['form_id'])
       $model->forms()->sync([$data['form_id']]);
     else
       $model->forms()->sync([]);
-    
+
     event(new CategoryWasCreated($model, $data));
-    
+
     event(new CreateMedia($model, $data));
-    
+
     return $this->find($model->id);
   }
-  
-  
+
+
   /**
    * Standard Api Method
    * @param $criteria
@@ -182,28 +186,28 @@ class EloquentCategoryRepository extends EloquentBaseRepository implements Categ
   {
     /*== initialize query ==*/
     $query = $this->model->query();
-    
+
     /*== FILTER ==*/
     if (isset($params->filter)) {
       $filter = $params->filter;
-      
+
       //Update by field
       if (isset($filter->field))
         $field = $filter->field;
     }
-    
+
     /*== REQUEST ==*/
     $model = $query->where($field ?? 'id', $criteria)->first();
     $model ? $model->update((array)$data) : false;
-    
+
     if ($data['form_id'])
       $model->forms()->sync([$data['form_id']]);
     else
       $model->forms()->sync([]);
-    
+
     event(new UpdateMedia($model, $data));
   }
-  
+
   /**
    * Standard Api Method
    * @param $criteria
@@ -213,20 +217,20 @@ class EloquentCategoryRepository extends EloquentBaseRepository implements Categ
   {
     /*== initialize query ==*/
     $query = $this->model->query();
-    
+
     /*== FILTER ==*/
     if (isset($params->filter)) {
       $filter = $params->filter;
-      
+
       if (isset($filter->field))//Where field
         $field = $filter->field;
     }
-    
+
     /*== REQUEST ==*/
     $model = $query->where($field ?? 'id', $criteria)->first();
     $model ? $model->delete() : false;
     event(new CategoryWasDeleted($model));
     event(new DeleteMedia($model->id, get_class($model)));
-    
+
   }
 }
