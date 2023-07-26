@@ -17,6 +17,7 @@ class NewAppointmentFromNewSubscription
     public function handle($event)
     {
         try {
+          if(\Schema::hasTable('iappointment__appointments')){
             $userDriver = config('asgard.user.config.driver');
 
             $subscription = $event->model;
@@ -59,6 +60,7 @@ class NewAppointmentFromNewSubscription
                         ]
                     );
                 }
+            }
             }
         }catch(\Exception $e){
             \Log::info($e->getMessage().' - '.$e->getFile().' - '.$e->getLine());
