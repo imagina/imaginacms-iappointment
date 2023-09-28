@@ -2,8 +2,8 @@
 
 namespace Modules\Iappointment\Repositories\Cache;
 
-use Modules\Iappointment\Repositories\AppointmentLeadRepository;
 use Modules\Core\Repositories\Cache\BaseCacheDecorator;
+use Modules\Iappointment\Repositories\AppointmentLeadRepository;
 
 class CacheAppointmentLeadDecorator extends BaseCacheDecorator implements AppointmentLeadRepository
 {
@@ -16,8 +16,6 @@ class CacheAppointmentLeadDecorator extends BaseCacheDecorator implements Appoin
 
     /**
      * List or resources
-     *
-     * @return collection
      */
     public function getItemsBy($params)
     {
@@ -28,8 +26,6 @@ class CacheAppointmentLeadDecorator extends BaseCacheDecorator implements Appoin
 
     /**
      * find a resource by id or slug
-     *
-     * @return object
      */
     public function getItem($criteria, $params = false)
     {
