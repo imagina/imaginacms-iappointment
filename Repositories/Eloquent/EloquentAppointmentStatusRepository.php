@@ -35,17 +35,17 @@ class EloquentAppointmentStatusRepository extends EloquentBaseRepository impleme
                 $query->where('parent_id', $filter->parent);
             }
 
-            if (isset($filter->search)) { //si hay que filtrar por rango de precio
-                $criterion = $filter->search;
-                $param = explode(' ', $criterion);
-                $criterion = $filter->search;
-                //find search in columns
-                $query->where(function ($query) use ($criterion) {
-                    $query->whereHas('translations', function (Builder $q) use ($criterion) {
-                        $q->where('title', 'like', "%{$criterion}%");
-                    });
-                })->orWhere('id', 'like', '%'.$filter->search.'%');
-            }
+      if (isset($filter->search)) { //si hay que filtrar por rango de precio
+        $criterion = $filter->search;
+        $param = explode(' ', $criterion);
+        $criterion = $filter->search;
+        //find search in columns
+        $query->where(function ($query) use ($filter, $criterion) {
+          $query->whereHas('translations', function (Builder $q) use ($criterion) {
+            $q->where('title', 'like', "%{$criterion}%");
+          });
+        })->orWhere('id', 'like', '%' . $filter->search . '%');
+      }
 
             //Filter by date
             if (isset($filter->date)) {
