@@ -118,7 +118,7 @@ class CategoryApiController extends BaseApiController
     /**
      * Update the specified resource in storage.
      */
-    public function update($criteria, Request $request): Response
+    public function update($criteria, Request $request):  \Illuminate\Http\JsonResponse 
     {
         \DB::beginTransaction();
         try {
