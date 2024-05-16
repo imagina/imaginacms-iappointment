@@ -9,6 +9,9 @@ class CategoryTransformer extends JsonResource
 {
     public function toArray($request): array
     {
+
+        $form = $this->form->first();
+        
         $data = [
             'id' => $this->id,
             'title' => $this->title ?? '',
@@ -19,8 +22,8 @@ class CategoryTransformer extends JsonResource
             'options' => $this->options,
             'createdAt' => $this->when($this->created_at, $this->created_at),
             'updatedAt' => $this->when($this->updated_at, $this->updated_at),
-            'form' => new FormTransformer($this->form),
-            'formId' => $this->form ? $this->form->id : null,
+            'form' => new FormTransformer($form),
+            'formId' => $form ? $form->id : null,
             'parent' => new CategoryTransformer($this->whenLoaded('parent')),
             'children' => CategoryTransformer::collection($this->whenLoaded('children')),
             'appointments' => AppointmentTransformer::collection($this->whenLoaded('appointments')),
