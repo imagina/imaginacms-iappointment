@@ -2,8 +2,8 @@
 
 namespace Modules\Iappointment\Repositories\Cache;
 
-use Modules\Iappointment\Repositories\AppointmentRepository;
 use Modules\Core\Repositories\Cache\BaseCacheDecorator;
+use Modules\Iappointment\Repositories\AppointmentRepository;
 
 class CacheAppointmentDecorator extends BaseCacheDecorator implements AppointmentRepository
 {
@@ -16,8 +16,6 @@ class CacheAppointmentDecorator extends BaseCacheDecorator implements Appointmen
 
     /**
      * List or resources
-     *
-     * @return collection
      */
     public function getItemsBy($params)
     {
@@ -28,10 +26,8 @@ class CacheAppointmentDecorator extends BaseCacheDecorator implements Appointmen
 
     /**
      * find a resource by id or slug
-     *
-     * @return object
      */
-    public function getItem($criteria, $params)
+    public function getItem($criteria, $params = false)
     {
         return $this->remember(function () use ($criteria, $params) {
             return $this->repository->getItem($criteria, $params);
@@ -55,7 +51,7 @@ class CacheAppointmentDecorator extends BaseCacheDecorator implements Appointmen
      *
      * @return mixed
      */
-    public function updateBy($criteria, $data, $params)
+    public function updateBy($criteria, $data, $params = false)
     {
         $this->clearCache();
 
@@ -67,7 +63,7 @@ class CacheAppointmentDecorator extends BaseCacheDecorator implements Appointmen
      *
      * @return mixed
      */
-    public function deleteBy($criteria, $params)
+    public function deleteBy($criteria, $params = false)
     {
         $this->clearCache();
 

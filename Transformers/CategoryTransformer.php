@@ -7,20 +7,23 @@ use Modules\Iforms\Transformers\FormTransformer;
 
 class CategoryTransformer extends JsonResource
 {
-    public function toArray($request)
+    public function toArray($request): array
     {
+
+        $form = $this->form->first();
+        
         $data = [
             'id' => $this->id,
             'title' => $this->title ?? '',
             'status' => $this->status ? '1' : '0',
             'slug' => $this->slug ?? '',
             'description' => $this->description ?? '',
-            'parentId' => (int)$this->parent_id,
-            'options' =>  $this->options,
+            'parentId' => (int) $this->parent_id,
+            'options' => $this->options,
             'createdAt' => $this->when($this->created_at, $this->created_at),
             'updatedAt' => $this->when($this->updated_at, $this->updated_at),
-            'form' => new FormTransformer($this->form),
-            'formId' => $this->form ? $this->form->id : null,
+            'form' => new FormTransformer($form),
+            'formId' => $form ? $form->id : null,
             'parent' => new CategoryTransformer($this->whenLoaded('parent')),
             'children' => CategoryTransformer::collection($this->whenLoaded('children')),
             'appointments' => AppointmentTransformer::collection($this->whenLoaded('appointments')),
@@ -44,6 +47,7 @@ class CategoryTransformer extends JsonResource
                   ($this->translate("$lang")['status'] ? '1' : '0') : '';
             }
         }
+
         return $data;
     }
 }

@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('iappointment__category_translations', function (Blueprint $table) {
-            $table->boolean('status')->default(true);
+        Schema::table('iappointment__appointments', function (Blueprint $table) {
+            $table->auditStamps();
+        });
+        Schema::table('iappointment__categories', function (Blueprint $table) {
+            $table->auditStamps();
         });
     }
 
